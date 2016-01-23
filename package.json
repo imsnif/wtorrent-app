@@ -1,0 +1,88 @@
+{
+  "name": "wtorrent-app",
+  "version": "0.0.1",
+  "description": "Dashboard for webTorrent - Chrome App",
+  "main": "server.js",
+  "scripts": {
+    "postinstall": "browserinc",
+    "build": "browserify lib/index.js -g babelify -g aliasify -g declareify --outfile public/index.js -v",
+    "watch": "crxify -p ~/.ssh/wtorrent.pem & watchify lib/index.js -g babelify -g aliasify -g declareify --outfile public/index.js -v"
+  },
+  "author": "Aram Drevekenin",
+  "license": "MIT",
+  "dependencies": {
+    "aliasify": "^1.8.0",
+    "aliasify-tristan": "^1.8.2",
+    "async": "^1.5.0",
+    "babel-cli": "^6.3.17",
+    "babel-preset-es2015": "^6.3.13",
+    "babel-preset-react": "^6.3.13",
+    "babel-preset-stage-0": "^6.3.13",
+    "babel-preset-stage-2": "^6.3.13",
+    "babelify": "^7.2.0",
+    "body-parser": "^1.14.1",
+    "browserify": "^12.0.1",
+    "browserinc": "^1.1.0",
+    "chrome-debug": "^1.0.0",
+    "chrome-dgram": "^2.1.7",
+    "chrome-net": "^3.1.1",
+    "chrome-path": "^1.0.0",
+    "chrome-util-deprecate": "^1.0.0",
+    "chromiumify": "^9.0.0",
+    "cssify": "^1.0.1",
+    "flux": "^2.1.1",
+    "http-chrome": "^1.0.0",
+    "keymirror": "^0.1.1",
+    "lodash": "^3.10.1",
+    "node-jsx": "~0.11.0",
+    "object-assign": "^4.0.1",
+    "parse-torrent": "^5.7.0",
+    "pretty-ms": "^2.1.0",
+    "react": "^0.14.3",
+    "react-bootstrap": "^0.28.1",
+    "react-loader": "^2.0.0",
+    "react-xeditable": "^0.1.3",
+    "rmdir": "^1.1.0",
+    "webtorrent": "^0.72.1"
+  },
+  "devDependencies": {
+    "browserify": "~6.0.3",
+    "chrome-dgram": "^2.1.7",
+    "declareify": "^1.0.0",
+    "nodemon": "^1.2.1",
+    "reactify": "~0.14.0",
+    "uglify-js": "~2.4.15",
+    "watchify": "^3.1.1"
+  },
+  "aliasify": {
+    "aliases": {
+      "net": "chrome-net",
+      "dgram": "chrome-dgram",
+      "dns": "native-dns",
+      "fs": "./fakefs.js",
+      "addr-to-ip-port": "addr-to-ip-port/index",
+      "load-ip-set": "load-ip-set/index",
+      "ut_pex": "ut_pex/index",
+      "simple-get": "simple-get/index",
+      "debug": "chrome-debug",
+      "depd": "chrome-depd",
+      "path": "chrome-path",
+      "util-deprecate": "chrome-util-deprecate"
+    },
+    "verbose": "true"
+  },
+  "babel": {
+    "presets": [
+      "es2015",
+      "react"
+    ]
+  },
+  "browserinc": {
+    "include": [
+      "./lib/common-node.js",
+      "./lib/client/http-tracker.js",
+      "./lib/client/udp-tracker.js",
+      "./lib/server.js"
+    ]
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "name": "wtorrent-app",
+  "manifest_version": 2,
+  "minimum_chrome_version": "33",
+  "version": "1.0",
+  "description": "wtorrent-backend",
+  "app": {
+    "background": {
+      "scripts": ["./index.js"],
+      "persistent": "true"
+    }
+  },
+  "sockets": {
+    "tcp": {
+      "connect": ["*"]
+    },
+    "udp": {
+      "send": ["*"],
+      "bind": ["*"]
+    },
+    "tcpServer": {
+      "listen": ["*"]
+    }
+  },
+  "permissions": [
+    "tabs",
+    "background",
+    "webview",
+    "storage",
+    "unlimitedStorage",
+    "http://*/", "https://*/", "ftp://*/",
+    "app.window.fullscreen",
+    {"fileSystem": ["write", "retainEntries", "directory"]}
+  ]
+}
