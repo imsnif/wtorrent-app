@@ -31,23 +31,34 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var torrentClient = new _webtorrent2.default({ maxConns: 10 });
 
-chrome.runtime.onMessageExternal.addListener(function (magnetUri) {
-  torrentClient.add(magnetUri, function (torrent) {
-    console.log("added");
-    torrent.on("download", function (chunkSize) {
-      var action = "update";
-      var data = {
-        infoHash: torrent.infoHash,
-        name: torrent.name,
-        downloadSpeed: torrent.downloadSpeed,
-        uploadSpeed: torrent.uploadSpeed,
-        progress: torrent.progress,
-        downloaded: torrent.downloaded,
-        uploaded: torrent.uploaded
-      };
-      chrome.runtime.sendMessage("kechjjcjfbniofinibgojemmindijlbj", { action: action, data: data });
+function updateTorrentState(torrent) {
+  var action = "update";
+  var data = {
+    infoHash: torrent.infoHash,
+    name: torrent.name,
+    downloadSpeed: torrent.downloadSpeed,
+    uploadSpeed: torrent.uploadSpeed,
+    progress: torrent.progress,
+    downloaded: torrent.downloaded,
+    uploaded: torrent.uploaded
+  };
+  chrome.runtime.sendMessage("kechjjcjfbniofinibgojemmindijlbj", { action: action, data: data });
+}
+
+chrome.runtime.onMessageExternal.addListener(function (message) {
+  var _this = this;
+
+  if (message.action === "add") {
+    torrentClient.add(message.magnetUri, function (torrent) {
+      torrent.on("download", updateTorrentState.bind(_this, torrent));
+      torrent.on("upload", updateTorrentState.bind(_this, torrent));
+      torrent.on("done", updateTorrentState.bind(_this, torrent));
     });
-  });
+  } else if (message.action === "getState") {
+    torrentClient.torrents.forEach(function (torrent) {
+      updateTorrentState(torrent);
+    });
+  }
 });
 
 },{"webtorrent":155}],3:[function(require,module,exports){
