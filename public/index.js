@@ -30,8 +30,10 @@ var _webtorrent2 = _interopRequireDefault(_webtorrent);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var torrentClient = new _webtorrent2.default({ maxConns: 10 });
+var reportTimer = undefined;
 
 function updateTorrentState(torrent) {
+  var recipient = "torrent";
   var action = "update";
   var data = {
     infoHash: torrent.infoHash,
@@ -42,7 +44,27 @@ function updateTorrentState(torrent) {
     downloaded: torrent.downloaded,
     uploaded: torrent.uploaded
   };
-  chrome.runtime.sendMessage("kechjjcjfbniofinibgojemmindijlbj", { action: action, data: data });
+  chrome.runtime.sendMessage("kechjjcjfbniofinibgojemmindijlbj", { recipient: recipient, action: action, data: data });
+}
+
+function updateClientState() {
+  var recipient = "client";
+  var action = "update";
+  var data = {
+    downloadSpeed: torrentClient.downloadSpeed,
+    uploadSpeed: torrentClient.uploadSpeed,
+    downloadThrottle: 0, // Throttle not yet implemented in Webtorrent
+    uploadThrottle: 0
+  };
+  chrome.runtime.sendMessage("kechjjcjfbniofinibgojemmindijlbj", { recipient: recipient, action: action, data: data });
+}
+
+function updateState() {
+  torrentClient.torrents.forEach(function (torrent) {
+    updateTorrentState(torrent);
+  });
+  updateClientState();
+  reportTimer = setTimeout(updateState, 1000);
 }
 
 chrome.runtime.onMessageExternal.addListener(function (message) {
@@ -54,12 +76,11 @@ chrome.runtime.onMessageExternal.addListener(function (message) {
       torrent.on("upload", updateTorrentState.bind(_this, torrent));
       torrent.on("done", updateTorrentState.bind(_this, torrent));
     });
-  } else if (message.action === "getState") {
-    torrentClient.torrents.forEach(function (torrent) {
-      updateTorrentState(torrent);
-    });
   }
 });
+
+chrome.runtime.onInstalled.addListener(updateState);
+chrome.runtime.onStartup.addListener(updateState);
 
 },{"webtorrent":155}],3:[function(require,module,exports){
 'use strict';
