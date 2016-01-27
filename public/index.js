@@ -42,7 +42,8 @@ function updateTorrentState(torrent) {
     uploadSpeed: torrent.uploadSpeed,
     progress: torrent.progress,
     downloaded: torrent.downloaded,
-    uploaded: torrent.uploaded
+    uploaded: torrent.uploaded,
+    timeRemaining: torrent.timeRemaining
   };
   chrome.runtime.sendMessage("kechjjcjfbniofinibgojemmindijlbj", { recipient: recipient, action: action, data: data });
 }
