@@ -61,7 +61,7 @@ chrome.runtime.onMessageExternal.addListener(function (message) {
 chrome.runtime.onInstalled.addListener(updateState);
 chrome.runtime.onStartup.addListener(updateState);
 
-},{"webtorrent":156}],2:[function(require,module,exports){
+},{"webtorrent":173}],2:[function(require,module,exports){
 'use strict';
 
 var ADDR_RE = /^\[?([^\]]+)\]?:(\d+)$/; // ipv4/ipv6/hostname + port
@@ -736,7 +736,61 @@ var objectKeys = Object.keys || function (obj) {
   return keys;
 };
 
-},{"util/":145}],6:[function(require,module,exports){
+},{"util/":162}],6:[function(require,module,exports){
+"use strict";
+
+module.exports = balanced;
+function balanced(a, b, str) {
+  var r = range(a, b, str);
+
+  return r && {
+    start: r[0],
+    end: r[1],
+    pre: str.slice(0, r[0]),
+    body: str.slice(r[0] + a.length, r[1]),
+    post: str.slice(r[1] + b.length)
+  };
+}
+
+balanced.range = range;
+function range(a, b, str) {
+  var begs, beg, left, right, result;
+  var ai = str.indexOf(a);
+  var bi = str.indexOf(b, ai + 1);
+  var i = ai;
+
+  if (ai >= 0 && bi > 0) {
+    begs = [];
+    left = str.length;
+
+    while (i < str.length && i >= 0 && !result) {
+      if (i == ai) {
+        begs.push(i);
+        ai = str.indexOf(a, i + 1);
+      } else if (begs.length == 1) {
+        result = [begs.pop(), bi];
+      } else {
+        beg = begs.pop();
+        if (beg < left) {
+          left = beg;
+          right = bi;
+        }
+
+        bi = str.indexOf(b, i + 1);
+      }
+
+      i = ai < bi && ai >= 0 ? ai : bi;
+    }
+
+    if (begs.length) {
+      result = [left, right];
+    }
+  }
+
+  return result;
+}
+
+},{}],7:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -744,7 +798,7 @@ module.exports = {
   decode: require('./lib/decode')
 };
 
-},{"./lib/decode":7,"./lib/encode":9}],7:[function(require,module,exports){
+},{"./lib/decode":8,"./lib/encode":10}],8:[function(require,module,exports){
 (function (Buffer){
 'use strict';
 
@@ -854,7 +908,7 @@ decode.bytes = function () {
 module.exports = decode;
 
 }).call(this,require("buffer").Buffer)
-},{"./dict":8,"buffer":154}],8:[function(require,module,exports){
+},{"./dict":9,"buffer":171}],9:[function(require,module,exports){
 "use strict";
 
 var Dict = module.exports = function Dict() {
@@ -874,7 +928,7 @@ Dict.prototype.binarySet = function binarySet(key, value) {
   this[key] = value;
 };
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 (function (Buffer){
 'use strict';
 
@@ -976,7 +1030,7 @@ encode.list = function (buffers, data) {
 module.exports = encode;
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":154}],10:[function(require,module,exports){
+},{"buffer":171}],11:[function(require,module,exports){
 (function (Buffer){
 "use strict";
 
@@ -1045,7 +1099,7 @@ BitField.prototype._grow = function (length) {
 if (typeof module !== "undefined") module.exports = BitField;
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":154}],11:[function(require,module,exports){
+},{"buffer":171}],12:[function(require,module,exports){
 (function (Buffer){
 'use strict';
 
@@ -1761,7 +1815,7 @@ function pull(requests, piece, offset, length) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"bencode":6,"bitfield":10,"buffer":154,"chrome-debug":29,"hat":50,"inherits":54,"speedometer":120,"stream":122,"xtend":164}],12:[function(require,module,exports){
+},{"bencode":7,"bitfield":11,"buffer":171,"chrome-debug":31,"hat":56,"inherits":61,"speedometer":136,"stream":138,"xtend":181}],13:[function(require,module,exports){
 (function (process,Buffer){
 'use strict';
 
@@ -2156,7 +2210,7 @@ Swarm.prototype._validAddr = function (addr) {
 };
 
 }).call(this,require('_process'),require("buffer").Buffer)
-},{"./lib/peer":13,"./lib/tcp-pool":25,"_process":91,"addr-to-ip-port/index":2,"buffer":154,"chrome-debug":29,"chrome-net":33,"events":46,"inherits":54,"speedometer":120}],13:[function(require,module,exports){
+},{"./lib/peer":14,"./lib/tcp-pool":27,"_process":102,"addr-to-ip-port/index":2,"buffer":171,"chrome-debug":31,"chrome-net":35,"events":50,"inherits":61,"speedometer":136}],14:[function(require,module,exports){
 'use strict';
 
 var debug = require('chrome-debug')('bittorrent-swarm:peer');
@@ -2406,7 +2460,7 @@ Peer.prototype.destroy = function (err) {
   if (swarm) swarm.removePeer(self.id);
 };
 
-},{"./webconn":14,"bittorrent-protocol":11,"chrome-debug":29}],14:[function(require,module,exports){
+},{"./webconn":15,"bittorrent-protocol":12,"chrome-debug":31}],15:[function(require,module,exports){
 'use strict';
 
 module.exports = WebConn;
@@ -2497,7 +2551,7 @@ WebConn.prototype.httpRequest = function (pieceIndex, offset, length, cb) {
   });
 };
 
-},{"bitfield":10,"bittorrent-protocol":11,"chrome-debug":29,"inherits":54,"simple-get/index":116,"simple-sha1":118}],15:[function(require,module,exports){
+},{"bitfield":11,"bittorrent-protocol":12,"chrome-debug":31,"inherits":61,"simple-get/index":132,"simple-sha1":134}],16:[function(require,module,exports){
 (function (process,Buffer){
 'use strict';
 
@@ -2764,7 +2818,7 @@ Client.prototype._defaultAnnounceOpts = function (opts) {
 };
 
 }).call(this,require('_process'),require("buffer").Buffer)
-},{"./lib/client/http-tracker":16,"./lib/client/udp-tracker":18,"./lib/client/websocket-tracker":19,"./lib/common":21,"_process":91,"buffer":154,"chrome-debug":29,"events":46,"inherits":54,"once":73,"run-parallel":113,"uniq":139,"url":140}],16:[function(require,module,exports){
+},{"./lib/client/http-tracker":17,"./lib/client/udp-tracker":19,"./lib/client/websocket-tracker":20,"./lib/common":22,"_process":102,"buffer":171,"chrome-debug":31,"events":50,"inherits":61,"once":81,"run-parallel":129,"uniq":156,"url":157}],17:[function(require,module,exports){
 (function (Buffer){
 'use strict';
 
@@ -2971,7 +3025,7 @@ HTTPTracker.prototype._onScrapeResponse = function (data) {
 };
 
 }).call(this,{"isBuffer":require("../../../is-buffer/index.js")})
-},{"../../../is-buffer/index.js":58,"../common":21,"./tracker":17,"bencode":6,"chrome-debug":29,"compact2string":38,"inherits":54,"simple-get/index":116}],17:[function(require,module,exports){
+},{"../../../is-buffer/index.js":65,"../common":22,"./tracker":18,"bencode":7,"chrome-debug":31,"compact2string":40,"inherits":61,"simple-get/index":132}],18:[function(require,module,exports){
 'use strict';
 
 module.exports = Tracker;
@@ -3004,7 +3058,7 @@ Tracker.prototype.setInterval = function (intervalMs) {
   }
 };
 
-},{"events":46,"inherits":54}],18:[function(require,module,exports){
+},{"events":50,"inherits":61}],19:[function(require,module,exports){
 (function (Buffer){
 'use strict';
 
@@ -3239,7 +3293,7 @@ function toUInt64(n) {
 function noop() {}
 
 }).call(this,require("buffer").Buffer)
-},{"../common":21,"./tracker":17,"bn.js":24,"buffer":154,"chrome-debug":29,"chrome-dgram":31,"compact2string":38,"hat":50,"inherits":54,"url":140}],19:[function(require,module,exports){
+},{"../common":22,"./tracker":18,"bn.js":25,"buffer":171,"chrome-debug":31,"chrome-dgram":33,"compact2string":40,"hat":56,"inherits":61,"url":157}],20:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
@@ -3537,7 +3591,7 @@ WebSocketTracker.prototype._generateOffers = function (numwant, cb) {
 
 function noop() {}
 
-},{"../common":21,"./tracker":17,"chrome-debug":29,"hat":50,"inherits":54,"simple-peer":117,"simple-websocket":119}],20:[function(require,module,exports){
+},{"../common":22,"./tracker":18,"chrome-debug":31,"hat":56,"inherits":61,"simple-peer":133,"simple-websocket":135}],21:[function(require,module,exports){
 (function (Buffer){
 'use strict';
 
@@ -3607,7 +3661,7 @@ exports.querystringStringify = function (obj) {
 };
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":154,"querystring":96}],21:[function(require,module,exports){
+},{"buffer":171,"querystring":107}],22:[function(require,module,exports){
 (function (Buffer){
 'use strict';
 
@@ -3632,7 +3686,7 @@ var config = require('./common-node');
 extend(exports, config);
 
 }).call(this,require("buffer").Buffer)
-},{"./common-node":20,"buffer":154,"xtend/mutable":165}],22:[function(require,module,exports){
+},{"./common-node":21,"buffer":171,"xtend/mutable":182}],23:[function(require,module,exports){
 (function (Buffer){
 'use strict';
 
@@ -3658,7 +3712,7 @@ module.exports = function blobToBuffer(blob, cb) {
 };
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":154}],23:[function(require,module,exports){
+},{"buffer":171}],24:[function(require,module,exports){
 (function (Buffer){
 'use strict';
 
@@ -3715,7 +3769,7 @@ Block.prototype._flush = function () {
 };
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":154,"defined":43,"inherits":54,"readable-stream":107}],24:[function(require,module,exports){
+},{"buffer":171,"defined":47,"inherits":61,"readable-stream":119}],25:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
@@ -7049,10 +7103,182 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
   };
 })(typeof module === 'undefined' || module, undefined);
 
-},{"buffer":25}],25:[function(require,module,exports){
+},{"buffer":27}],26:[function(require,module,exports){
+'use strict';
+
+var concatMap = require('concat-map');
+var balanced = require('balanced-match');
+
+module.exports = expandTop;
+
+var escSlash = '\0SLASH' + Math.random() + '\0';
+var escOpen = '\0OPEN' + Math.random() + '\0';
+var escClose = '\0CLOSE' + Math.random() + '\0';
+var escComma = '\0COMMA' + Math.random() + '\0';
+var escPeriod = '\0PERIOD' + Math.random() + '\0';
+
+function numeric(str) {
+  return parseInt(str, 10) == str ? parseInt(str, 10) : str.charCodeAt(0);
+}
+
+function escapeBraces(str) {
+  return str.split('\\\\').join(escSlash).split('\\{').join(escOpen).split('\\}').join(escClose).split('\\,').join(escComma).split('\\.').join(escPeriod);
+}
+
+function unescapeBraces(str) {
+  return str.split(escSlash).join('\\').split(escOpen).join('{').split(escClose).join('}').split(escComma).join(',').split(escPeriod).join('.');
+}
+
+// Basically just str.split(","), but handling cases
+// where we have nested braced sections, which should be
+// treated as individual members, like {a,{b,c},d}
+function parseCommaParts(str) {
+  if (!str) return [''];
+
+  var parts = [];
+  var m = balanced('{', '}', str);
+
+  if (!m) return str.split(',');
+
+  var pre = m.pre;
+  var body = m.body;
+  var post = m.post;
+  var p = pre.split(',');
+
+  p[p.length - 1] += '{' + body + '}';
+  var postParts = parseCommaParts(post);
+  if (post.length) {
+    p[p.length - 1] += postParts.shift();
+    p.push.apply(p, postParts);
+  }
+
+  parts.push.apply(parts, p);
+
+  return parts;
+}
+
+function expandTop(str) {
+  if (!str) return [];
+
+  return expand(escapeBraces(str), true).map(unescapeBraces);
+}
+
+function identity(e) {
+  return e;
+}
+
+function embrace(str) {
+  return '{' + str + '}';
+}
+function isPadded(el) {
+  return (/^-?0\d/.test(el)
+  );
+}
+
+function lte(i, y) {
+  return i <= y;
+}
+function gte(i, y) {
+  return i >= y;
+}
+
+function expand(str, isTop) {
+  var expansions = [];
+
+  var m = balanced('{', '}', str);
+  if (!m || /\$$/.test(m.pre)) return [str];
+
+  var isNumericSequence = /^-?\d+\.\.-?\d+(?:\.\.-?\d+)?$/.test(m.body);
+  var isAlphaSequence = /^[a-zA-Z]\.\.[a-zA-Z](?:\.\.-?\d+)?$/.test(m.body);
+  var isSequence = isNumericSequence || isAlphaSequence;
+  var isOptions = /^(.*,)+(.+)?$/.test(m.body);
+  if (!isSequence && !isOptions) {
+    // {a},b}
+    if (m.post.match(/,.*}/)) {
+      str = m.pre + '{' + m.body + escClose + m.post;
+      return expand(str);
+    }
+    return [str];
+  }
+
+  var n;
+  if (isSequence) {
+    n = m.body.split(/\.\./);
+  } else {
+    n = parseCommaParts(m.body);
+    if (n.length === 1) {
+      // x{{a,b}}y ==> x{a}y x{b}y
+      n = expand(n[0], false).map(embrace);
+      if (n.length === 1) {
+        var post = m.post.length ? expand(m.post, false) : [''];
+        return post.map(function (p) {
+          return m.pre + n[0] + p;
+        });
+      }
+    }
+  }
+
+  // at this point, n is the parts, and we know it's not a comma set
+  // with a single entry.
+
+  // no need to expand pre, since it is guaranteed to be free of brace-sets
+  var pre = m.pre;
+  var post = m.post.length ? expand(m.post, false) : [''];
+
+  var N;
+
+  if (isSequence) {
+    var x = numeric(n[0]);
+    var y = numeric(n[1]);
+    var width = Math.max(n[0].length, n[1].length);
+    var incr = n.length == 3 ? Math.abs(numeric(n[2])) : 1;
+    var test = lte;
+    var reverse = y < x;
+    if (reverse) {
+      incr *= -1;
+      test = gte;
+    }
+    var pad = n.some(isPadded);
+
+    N = [];
+
+    for (var i = x; test(i, y); i += incr) {
+      var c;
+      if (isAlphaSequence) {
+        c = String.fromCharCode(i);
+        if (c === '\\') c = '';
+      } else {
+        c = String(i);
+        if (pad) {
+          var need = width - c.length;
+          if (need > 0) {
+            var z = new Array(need + 1).join('0');
+            if (i < 0) c = '-' + z + c.slice(1);else c = z + c;
+          }
+        }
+      }
+      N.push(c);
+    }
+  } else {
+    N = concatMap(n, function (el) {
+      return expand(el, false);
+    });
+  }
+
+  for (var j = 0; j < N.length; j++) {
+    for (var k = 0; k < post.length; k++) {
+      var expansion = pre + N[j] + post[k];
+      if (!isTop || isSequence || expansion) expansions.push(expansion);
+    }
+  }
+
+  return expansions;
+}
+
+},{"balanced-match":6,"concat-map":41}],27:[function(require,module,exports){
 "use strict";
 
-},{}],26:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 (function (process,Buffer){
 'use strict';
 
@@ -7266,7 +7492,7 @@ Zlib.prototype._error = function (status) {
 exports.Zlib = Zlib;
 
 }).call(this,require('_process'),require("buffer").Buffer)
-},{"_process":91,"buffer":154,"pako/lib/zlib/constants":77,"pako/lib/zlib/deflate.js":79,"pako/lib/zlib/inflate.js":81,"pako/lib/zlib/messages":83,"pako/lib/zlib/zstream":85}],27:[function(require,module,exports){
+},{"_process":102,"buffer":171,"pako/lib/zlib/constants":85,"pako/lib/zlib/deflate.js":87,"pako/lib/zlib/inflate.js":89,"pako/lib/zlib/messages":91,"pako/lib/zlib/zstream":93}],29:[function(require,module,exports){
 (function (process,Buffer){
 'use strict';
 
@@ -7833,7 +8059,7 @@ util.inherits(InflateRaw, Zlib);
 util.inherits(Unzip, Zlib);
 
 }).call(this,require('_process'),require("buffer").Buffer)
-},{"./binding":26,"_process":91,"_stream_transform":108,"assert":5,"buffer":154,"util":145}],28:[function(require,module,exports){
+},{"./binding":28,"_process":102,"_stream_transform":120,"assert":5,"buffer":171,"util":162}],30:[function(require,module,exports){
 "use strict";
 
 module.exports = {
@@ -7896,7 +8122,7 @@ module.exports = {
   "511": "Network Authentication Required"
 };
 
-},{}],29:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
@@ -8052,7 +8278,7 @@ function localstorage() {
   } catch (e) {}
 }
 
-},{"./debug":30,"localstorage-memory":64}],30:[function(require,module,exports){
+},{"./debug":32,"localstorage-memory":71}],32:[function(require,module,exports){
 'use strict';
 
 /**
@@ -8251,7 +8477,7 @@ function coerce(val) {
   return val;
 }
 
-},{"ms":70}],31:[function(require,module,exports){
+},{"ms":78}],33:[function(require,module,exports){
 (function (Buffer){
 'use strict';
 
@@ -8681,7 +8907,7 @@ Socket.prototype.ref = function () {
 };
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":154,"events":46,"inherits":54,"run-series":114}],32:[function(require,module,exports){
+},{"buffer":171,"events":50,"inherits":61,"run-series":130}],34:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -9968,7 +10194,7 @@ function flagToString(flag) {
 }
 
 }).call(this,require('_process'))
-},{"_process":91,"buffer":154,"chrome-path":34,"constants":39,"stream":122,"util":145}],33:[function(require,module,exports){
+},{"_process":102,"buffer":171,"chrome-path":36,"constants":42,"stream":138,"util":162}],35:[function(require,module,exports){
 (function (process,Buffer){
 /*global chrome */
 'use strict';
@@ -11142,7 +11368,7 @@ function exceptionWithHostPort(err, syscall, address, port, additional) {
 }
 
 }).call(this,require('_process'),require("buffer").Buffer)
-},{"_process":91,"buffer":154,"events":46,"inherits":54,"stream":122,"timers":134,"util":145}],34:[function(require,module,exports){
+},{"_process":102,"buffer":171,"events":50,"inherits":61,"stream":138,"timers":151,"util":162}],36:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -11393,7 +11619,7 @@ var substr = 'ab'.substr(-1) === 'b' ? function (str, start, len) {
 };
 
 }).call(this,require('_process'))
-},{"_process":91}],35:[function(require,module,exports){
+},{"_process":102}],37:[function(require,module,exports){
 'use strict';
 
 /**
@@ -11455,7 +11681,7 @@ function config(name) {
   return false;
 }
 
-},{}],36:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 'use strict';
 
 module.exports = ChunkStoreWriteStream;
@@ -11510,7 +11736,7 @@ ChunkStoreWriteStream.prototype.destroy = function (err) {
   this.emit('close');
 };
 
-},{"block-stream2":23,"inherits":54,"stream":122}],37:[function(require,module,exports){
+},{"block-stream2":24,"inherits":61,"stream":138}],39:[function(require,module,exports){
 "use strict";
 
 module.exports = function (target, numbers) {
@@ -11534,7 +11760,7 @@ module.exports = function (target, numbers) {
   return winner;
 };
 
-},{}],38:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 "use strict";
 
 var ipaddr = require('ipaddr.js');
@@ -11579,7 +11805,23 @@ compact2string.multi6 = function (buf) {
   return output;
 };
 
-},{"ipaddr.js":57}],39:[function(require,module,exports){
+},{"ipaddr.js":64}],41:[function(require,module,exports){
+'use strict';
+
+module.exports = function (xs, fn) {
+    var res = [];
+    for (var i = 0; i < xs.length; i++) {
+        var x = fn(xs[i], i);
+        if (isArray(x)) res.push.apply(res, x);else res.push(x);
+    }
+    return res;
+};
+
+var isArray = Array.isArray || function (xs) {
+    return Object.prototype.toString.call(xs) === '[object Array]';
+};
+
+},{}],42:[function(require,module,exports){
 module.exports={
   "O_RDONLY": 0,
   "O_WRONLY": 1,
@@ -11790,7 +12032,7 @@ module.exports={
   "UV_UDP_REUSEADDR": 4
 }
 
-},{}],40:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 (function (Buffer){
 'use strict';
 
@@ -11901,7 +12143,7 @@ function objectToString(o) {
 }
 
 }).call(this,{"isBuffer":require("../../is-buffer/index.js")})
-},{"../../is-buffer/index.js":58}],41:[function(require,module,exports){
+},{"../../is-buffer/index.js":65}],44:[function(require,module,exports){
 'use strict';
 
 module.exports = function cpus() {
@@ -11913,7 +12155,7 @@ module.exports = function cpus() {
   return cpus;
 };
 
-},{}],42:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 (function (global,Buffer){
 'use strict';
 
@@ -12381,7 +12623,119 @@ function getStreamStream(readable, file) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer)
-},{"bencode":6,"block-stream2":23,"buffer":154,"chrome-fs":32,"chrome-path":34,"dezalgo":44,"filestream/read":47,"flatten":48,"is-file":59,"junk":62,"multistream":71,"once":73,"piece-length":88,"run-parallel":113,"simple-sha1":118,"stream":122}],43:[function(require,module,exports){
+},{"bencode":7,"block-stream2":24,"buffer":171,"chrome-fs":34,"chrome-path":36,"dezalgo":48,"filestream/read":51,"flatten":52,"is-file":66,"junk":69,"multistream":79,"once":81,"piece-length":97,"run-parallel":129,"simple-sha1":134,"stream":138}],46:[function(require,module,exports){
+/**
+ * cuid.js
+ * Collision-resistant UID generator for browsers and node.
+ * Sequential for fast db lookups and recency sorting.
+ * Safe for element IDs and server-side lookups.
+ *
+ * Extracted from CLCTR
+ *
+ * Copyright (c) Eric Elliott 2012
+ * MIT License
+ */
+
+/*global window, navigator, document, require, process, module */
+(function (app) {
+  'use strict';
+  var namespace = 'cuid',
+    c = 0,
+    blockSize = 4,
+    base = 36,
+    discreteValues = Math.pow(base, blockSize),
+
+    pad = function pad(num, size) {
+      var s = "000000000" + num;
+      return s.substr(s.length-size);
+    },
+
+    randomBlock = function randomBlock() {
+      return pad((Math.random() *
+            discreteValues << 0)
+            .toString(base), blockSize);
+    },
+
+    safeCounter = function () {
+      c = (c < discreteValues) ? c : 0;
+      c++; // this is not subliminal
+      return c - 1;
+    },
+
+    api = function cuid() {
+      // Starting with a lowercase letter makes
+      // it HTML element ID friendly.
+      var letter = 'c', // hard-coded allows for sequential access
+
+        // timestamp
+        // warning: this exposes the exact date and time
+        // that the uid was created.
+        timestamp = (new Date().getTime()).toString(base),
+
+        // Prevent same-machine collisions.
+        counter,
+
+        // A few chars to generate distinct ids for different
+        // clients (so different computers are far less
+        // likely to generate the same id)
+        fingerprint = api.fingerprint(),
+
+        // Grab some more chars from Math.random()
+        random = randomBlock() + randomBlock();
+
+        counter = pad(safeCounter().toString(base), blockSize);
+
+      return  (letter + timestamp + counter + fingerprint + random);
+    };
+
+  api.slug = function slug() {
+    var date = new Date().getTime().toString(36),
+      counter,
+      print = api.fingerprint().slice(0,1) +
+        api.fingerprint().slice(-1),
+      random = randomBlock().slice(-2);
+
+      counter = safeCounter().toString(36).slice(-4);
+
+    return date.slice(-2) +
+      counter + print + random;
+  };
+
+  api.globalCount = function globalCount() {
+    // We want to cache the results of this
+    var cache = (function calc() {
+        var i,
+          count = 0;
+
+        for (i in window) {
+          count++;
+        }
+
+        return count;
+      }());
+
+    api.globalCount = function () { return cache; };
+    return cache;
+  };
+
+  api.fingerprint = function browserPrint() {
+    return pad((navigator.mimeTypes.length +
+      navigator.userAgent.length).toString(36) +
+      api.globalCount().toString(36), 4);
+  };
+
+  // don't change anything from here down.
+  if (app.register) {
+    app.register(namespace, api);
+  } else if (typeof module !== 'undefined') {
+    module.exports = api;
+  } else {
+    app[namespace] = api;
+  }
+
+}(this.applitude || this));
+
+},{}],47:[function(require,module,exports){
 "use strict";
 
 module.exports = function () {
@@ -12390,7 +12744,7 @@ module.exports = function () {
     }
 };
 
-},{}],44:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 'use strict';
 
 var wrappy = require('wrappy');
@@ -12413,7 +12767,7 @@ function dezalgo(cb) {
   };
 }
 
-},{"asap":3,"wrappy":163}],45:[function(require,module,exports){
+},{"asap":3,"wrappy":180}],49:[function(require,module,exports){
 'use strict';
 
 var once = require('once');
@@ -12500,7 +12854,7 @@ var eos = function eos(stream, opts, callback) {
 
 module.exports = eos;
 
-},{"once":73}],46:[function(require,module,exports){
+},{"once":81}],50:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
@@ -12771,7 +13125,7 @@ function isUndefined(arg) {
   return arg === void 0;
 }
 
-},{}],47:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 'use strict';
 
 var Readable = require('stream').Readable;
@@ -12869,7 +13223,7 @@ FileReadStream.prototype.destroy = function () {
   this.reader = null;
 };
 
-},{"inherits":54,"stream":122,"typedarray-to-buffer":138}],48:[function(require,module,exports){
+},{"inherits":61,"stream":138,"typedarray-to-buffer":155}],52:[function(require,module,exports){
 'use strict';
 
 module.exports = function flatten(list, depth) {
@@ -12888,7 +13242,275 @@ module.exports = function flatten(list, depth) {
   }
 };
 
-},{}],49:[function(require,module,exports){
+},{}],53:[function(require,module,exports){
+(function (process,Buffer){
+'use strict';
+
+module.exports = Storage;
+
+var cuid = require('cuid');
+var mkdirp = require('mkdirp');
+var os = require('os');
+var parallel = require('run-parallel');
+var path = require('chrome-path');
+var pathExists = require('path-exists');
+var raf = require('random-access-file');
+var rimraf = require('rimraf');
+var thunky = require('thunky');
+
+var TMP = pathExists.sync('/tmp') ? '/tmp' : os.tmpDir();
+
+function Storage(chunkLength, opts) {
+  var self = this;
+  if (!(self instanceof Storage)) return new Storage(chunkLength, opts);
+  if (!opts) opts = {};
+
+  self.chunkLength = Number(chunkLength);
+  if (!self.chunkLength) throw new Error('First argument must be a chunk length');
+
+  if (opts.files) {
+    if (!Array.isArray(opts.files)) {
+      throw new Error('`files` option must be an array');
+    }
+    self.files = opts.files.slice(0).map(function (file, i, files) {
+      if (file.path == null) throw new Error('File is missing `path` property');
+      if (file.length == null) throw new Error('File is missing `length` property');
+      if (file.offset == null) {
+        if (i === 0) {
+          file.offset = 0;
+        } else {
+          var prevFile = files[i - 1];
+          file.offset = prevFile.offset + prevFile.length;
+        }
+      }
+      return file;
+    });
+    self.length = self.files.reduce(function (sum, file) {
+      return sum + file.length;
+    }, 0);
+    if (opts.length != null && opts.length !== self.length) {
+      throw new Error('total `files` length is not equal to explicit `length` option');
+    }
+  } else {
+    var len = Number(opts.length) || Infinity;
+    self.files = [{
+      offset: 0,
+      path: path.resolve(opts.path || path.join(TMP, 'fs-chunk-store', cuid())),
+      length: len
+    }];
+    self.length = len;
+  }
+
+  self.chunkMap = [];
+  self.closed = false;
+
+  self.files.forEach(function (file) {
+    file.open = thunky(function (cb) {
+      if (self.closed) return cb(new Error('Storage is closed'));
+      mkdirp(path.dirname(file.path), function (err) {
+        if (err) return cb(err);
+        if (self.closed) return cb(new Error('Storage is closed'));
+        cb(null, raf(file.path));
+      });
+    });
+  });
+
+  // If the length is Infinity (i.e. a length was not specified) then the store will
+  // automatically grow.
+
+  if (self.length !== Infinity) {
+    self.lastChunkLength = self.length % self.chunkLength || self.chunkLength;
+    self.lastChunkIndex = Math.ceil(self.length / self.chunkLength) - 1;
+
+    self.files.forEach(function (file) {
+      var fileStart = file.offset;
+      var fileEnd = file.offset + file.length;
+
+      var firstChunk = Math.floor(fileStart / self.chunkLength);
+      var lastChunk = Math.floor((fileEnd - 1) / self.chunkLength);
+
+      for (var p = firstChunk; p <= lastChunk; ++p) {
+        var chunkStart = p * self.chunkLength;
+        var chunkEnd = chunkStart + self.chunkLength;
+
+        var from = fileStart < chunkStart ? 0 : fileStart - chunkStart;
+        var to = fileEnd > chunkEnd ? self.chunkLength : fileEnd - chunkStart;
+        var offset = fileStart > chunkStart ? 0 : chunkStart - fileStart;
+
+        if (!self.chunkMap[p]) self.chunkMap[p] = [];
+
+        self.chunkMap[p].push({
+          from: from,
+          to: to,
+          offset: offset,
+          file: file
+        });
+      }
+    });
+  }
+}
+
+Storage.prototype.put = function (index, buf, cb) {
+  var self = this;
+  if (typeof cb !== 'function') cb = noop;
+  if (self.closed) return nextTick(cb, new Error('Storage is closed'));
+
+  var isLastChunk = index === self.lastChunkIndex;
+  if (isLastChunk && buf.length !== self.lastChunkLength) {
+    return nextTick(cb, new Error('Last chunk length must be ' + self.lastChunkLength));
+  }
+  if (!isLastChunk && buf.length !== self.chunkLength) {
+    return nextTick(cb, new Error('Chunk length must be ' + self.chunkLength));
+  }
+
+  if (self.length === Infinity) {
+    self.files[0].open(function (err, file) {
+      if (err) return cb(err);
+      file.write(index * self.chunkLength, buf, cb);
+    });
+  } else {
+    var targets = self.chunkMap[index];
+    if (!targets) return nextTick(cb, new Error('no files matching the request range'));
+    var tasks = targets.map(function (target) {
+      return function (cb) {
+        target.file.open(function (err, file) {
+          if (err) return cb(err);
+          file.write(target.offset, buf.slice(target.from, target.to), cb);
+        });
+      };
+    });
+    parallel(tasks, cb);
+  }
+};
+
+Storage.prototype.get = function (index, opts, cb) {
+  var self = this;
+  if (typeof opts === 'function') return self.get(index, null, opts);
+  if (self.closed) return nextTick(cb, new Error('Storage is closed'));
+
+  var chunkLength = index === self.lastChunkIndex ? self.lastChunkLength : self.chunkLength;
+
+  var rangeFrom = opts && opts.offset || 0;
+  var rangeTo = opts && opts.length ? rangeFrom + opts.length : chunkLength;
+
+  if (rangeFrom < 0 || rangeFrom < 0 || rangeTo > chunkLength) {
+    return nextTick(cb, new Error('Invalid offset and/or length'));
+  }
+
+  if (self.length === Infinity) {
+    if (rangeFrom === rangeTo) return nextTick(cb, null, new Buffer(0));
+    self.files[0].open(function (err, file) {
+      if (err) return cb(err);
+      var offset = index * self.chunkLength + rangeFrom;
+      file.read(offset, rangeTo - rangeFrom, cb);
+    });
+  } else {
+    var targets = self.chunkMap[index];
+    if (!targets) return nextTick(cb, new Error('no files matching the request range'));
+    if (opts) {
+      targets = targets.filter(function (target) {
+        return target.to > rangeFrom && target.from < rangeTo;
+      });
+      if (targets.length === 0) {
+        return nextTick(cb, new Error('no files matching the requested range'));
+      }
+    }
+    if (rangeFrom === rangeTo) return nextTick(cb, null, new Buffer(0));
+
+    var tasks = targets.map(function (target) {
+      return function (cb) {
+        var from = target.from;
+        var to = target.to;
+        var offset = target.offset;
+
+        if (opts) {
+          if (to > rangeTo) to = rangeTo;
+          if (from < rangeFrom) {
+            offset += rangeFrom - from;
+            from = rangeFrom;
+          }
+        }
+
+        target.file.open(function (err, file) {
+          if (err) return cb(err);
+          file.read(offset, to - from, cb);
+        });
+      };
+    });
+
+    parallel(tasks, function (err, buffers) {
+      if (err) return cb(err);
+      cb(null, Buffer.concat(buffers));
+    });
+  }
+};
+
+Storage.prototype.close = function (cb) {
+  var self = this;
+  if (self.closed) return nextTick(cb, new Error('Storage is closed'));
+  self.closed = true;
+
+  var tasks = self.files.map(function (file) {
+    return function (cb) {
+      file.open(function (err, file) {
+        // an open error is okay because that means the file is not open
+        if (err) return cb(null);
+        file.close(cb);
+      });
+    };
+  });
+  parallel(tasks, cb);
+};
+
+Storage.prototype.destroy = function (cb) {
+  var self = this;
+  self.close(function () {
+    var tasks = self.files.map(function (file) {
+      return function (cb) {
+        rimraf(file.path, { maxBusyTries: 10 }, cb);
+      };
+    });
+    parallel(tasks, cb);
+  });
+};
+
+function nextTick(cb, err, val) {
+  process.nextTick(function () {
+    if (cb) cb(err, val);
+  });
+}
+
+function noop() {}
+
+}).call(this,require('_process'),require("buffer").Buffer)
+},{"_process":102,"buffer":171,"chrome-path":36,"cuid":46,"mkdirp":77,"os":82,"path-exists":54,"random-access-file":108,"rimraf":127,"run-parallel":129,"thunky":150}],54:[function(require,module,exports){
+'use strict';
+
+var fs = require('chrome-fs');
+var Promise = require('pinkie-promise');
+
+module.exports = function (fp) {
+	var fn = typeof fs.access === 'function' ? fs.access : fs.stat;
+
+	return new Promise(function (resolve) {
+		fn(fp, function (err) {
+			resolve(!err);
+		});
+	});
+};
+
+module.exports.sync = function (fp) {
+	var fn = typeof fs.accessSync === 'function' ? fs.accessSync : fs.statSync;
+
+	try {
+		fn(fp);
+		return true;
+	} catch (err) {
+		return false;
+	}
+};
+
+},{"chrome-fs":34,"pinkie-promise":98}],55:[function(require,module,exports){
 'use strict';
 
 // originally pulled out of simple-peer
@@ -12904,7 +13526,7 @@ module.exports = function getBrowserRTC() {
   return wrtc;
 };
 
-},{}],50:[function(require,module,exports){
+},{}],56:[function(require,module,exports){
 'use strict';
 
 var hat = module.exports = function (bits, base) {
@@ -12968,7 +13590,7 @@ hat.rack = function (bits, base, expandBy) {
     return fn;
 };
 
-},{}],51:[function(require,module,exports){
+},{}],57:[function(require,module,exports){
 'use strict';
 
 var http = require('http');
@@ -12986,7 +13608,7 @@ https.request = function (params, cb) {
     return http.request.call(this, params, cb);
 };
 
-},{"http":123}],52:[function(require,module,exports){
+},{"http":139}],58:[function(require,module,exports){
 "use strict";
 
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
@@ -13074,7 +13696,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   buffer[offset + i - d] |= s * 128;
 };
 
-},{}],53:[function(require,module,exports){
+},{}],59:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -13127,7 +13749,58 @@ function nextTick(cb, err, val) {
 }
 
 }).call(this,require('_process'))
-},{"_process":91}],54:[function(require,module,exports){
+},{"_process":102}],60:[function(require,module,exports){
+(function (process){
+'use strict';
+
+var wrappy = require('wrappy');
+var reqs = Object.create(null);
+var once = require('once');
+
+module.exports = wrappy(inflight);
+
+function inflight(key, cb) {
+  if (reqs[key]) {
+    reqs[key].push(cb);
+    return null;
+  } else {
+    reqs[key] = [cb];
+    return makeres(key);
+  }
+}
+
+function makeres(key) {
+  return once(function RES() {
+    var cbs = reqs[key];
+    var len = cbs.length;
+    var args = slice(arguments);
+    for (var i = 0; i < len; i++) {
+      cbs[i].apply(null, args);
+    }
+    if (cbs.length > len) {
+      // added more in the interim.
+      // de-zalgo, just in case, but don't call again.
+      cbs.splice(0, len);
+      process.nextTick(function () {
+        RES.apply(null, args);
+      });
+    } else {
+      delete reqs[key];
+    }
+  });
+}
+
+function slice(args) {
+  var length = args.length;
+  var array = [];
+
+  for (var i = 0; i < length; i++) {
+    array[i] = args[i];
+  }return array;
+}
+
+}).call(this,require('_process'))
+},{"_process":102,"once":81,"wrappy":180}],61:[function(require,module,exports){
 'use strict';
 
 if (typeof Object.create === 'function') {
@@ -13154,7 +13827,7 @@ if (typeof Object.create === 'function') {
   };
 }
 
-},{}],55:[function(require,module,exports){
+},{}],62:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
@@ -13306,7 +13979,7 @@ module.exports = function (blocklist) {
 	return self;
 };
 
-},{"ip":56}],56:[function(require,module,exports){
+},{"ip":63}],63:[function(require,module,exports){
 'use strict';
 
 var ip = exports,
@@ -13668,7 +14341,7 @@ function _normalizeFamily(family) {
   return family ? family.toLowerCase() : 'ipv4';
 }
 
-},{"buffer":154,"os":74}],57:[function(require,module,exports){
+},{"buffer":171,"os":82}],64:[function(require,module,exports){
 "use strict";
 
 (function () {
@@ -13780,6 +14453,39 @@ function _normalizeFamily(family) {
       return ipaddr.IPv6.parse("::ffff:" + this.toString());
     };
 
+    IPv4.prototype.prefixLengthFromSubnetMask = function () {
+      var cidr, i, octet, stop, zeros, zerotable, _i;
+      zerotable = {
+        0: 8,
+        128: 7,
+        192: 6,
+        224: 5,
+        240: 4,
+        248: 3,
+        252: 2,
+        254: 1,
+        255: 0
+      };
+      cidr = 0;
+      stop = false;
+      for (i = _i = 3; _i >= 0; i = _i += -1) {
+        octet = this.octets[i];
+        if (octet in zerotable) {
+          zeros = zerotable[octet];
+          if (stop && zeros !== 0) {
+            return null;
+          }
+          if (zeros !== 8) {
+            stop = true;
+          }
+          cidr += zeros;
+        } else {
+          return null;
+        }
+      }
+      return 32 - cidr;
+    };
+
     return IPv4;
   }();
 
@@ -13830,17 +14536,24 @@ function _normalizeFamily(family) {
 
   ipaddr.IPv6 = function () {
     function IPv6(parts) {
-      var part, _i, _len;
-      if (parts.length !== 8) {
-        throw new Error("ipaddr: ipv6 part count should be 8");
+      var i, part, _i, _j, _len, _ref;
+      if (parts.length === 16) {
+        this.parts = [];
+        for (i = _i = 0; _i <= 14; i = _i += 2) {
+          this.parts.push(parts[i] << 8 | parts[i + 1]);
+        }
+      } else if (parts.length === 8) {
+        this.parts = parts;
+      } else {
+        throw new Error("ipaddr: ipv6 part count should be 8 or 16");
       }
-      for (_i = 0, _len = parts.length; _i < _len; _i++) {
-        part = parts[_i];
+      _ref = this.parts;
+      for (_j = 0, _len = _ref.length; _j < _len; _j++) {
+        part = _ref[_j];
         if (!(0 <= part && part <= 0xffff)) {
           throw new Error("ipaddr: ipv6 part should fit to two octets");
         }
       }
-      this.parts = parts;
     }
 
     IPv6.prototype.kind = function () {
@@ -14125,6 +14838,18 @@ function _normalizeFamily(family) {
     }
   };
 
+  ipaddr.fromByteArray = function (bytes) {
+    var length;
+    length = bytes.length;
+    if (length === 4) {
+      return new ipaddr.IPv4(bytes);
+    } else if (length === 16) {
+      return new ipaddr.IPv6(bytes);
+    } else {
+      throw new Error("ipaddr: the binary input is neither an IPv6 nor IPv4 address");
+    }
+  };
+
   ipaddr.process = function (string) {
     var addr;
     addr = this.parse(string);
@@ -14136,7 +14861,7 @@ function _normalizeFamily(family) {
   };
 }).call(undefined);
 
-},{}],58:[function(require,module,exports){
+},{}],65:[function(require,module,exports){
 'use strict';
 
 /**
@@ -14153,7 +14878,7 @@ module.exports = function (obj) {
   obj.constructor && typeof obj.constructor.isBuffer === 'function' && obj.constructor.isBuffer(obj)));
 };
 
-},{}],59:[function(require,module,exports){
+},{}],66:[function(require,module,exports){
 'use strict';
 
 var fs = require('chrome-fs');
@@ -14173,7 +14898,7 @@ function isFileSync(path) {
   return fs.existsSync(path) && fs.statSync(path).isFile();
 }
 
-},{"chrome-fs":32}],60:[function(require,module,exports){
+},{"chrome-fs":34}],67:[function(require,module,exports){
 'use strict';
 
 module.exports = isTypedArray;
@@ -14205,14 +14930,14 @@ function isLooseTypedArray(arr) {
   return names[toString.call(arr)];
 }
 
-},{}],61:[function(require,module,exports){
+},{}],68:[function(require,module,exports){
 'use strict';
 
 module.exports = Array.isArray || function (arr) {
   return Object.prototype.toString.call(arr) == '[object Array]';
 };
 
-},{}],62:[function(require,module,exports){
+},{}],69:[function(require,module,exports){
 'use strict';
 
 // // All
@@ -14244,7 +14969,7 @@ exports.not = exports.isnt = function (filename) {
 	return !exports.is(filename);
 };
 
-},{}],63:[function(require,module,exports){
+},{}],70:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -14291,7 +15016,7 @@ module.exports = function loadIPSet(input, opts, cb) {
 };
 
 }).call(this,require('_process'))
-},{"_process":91,"chrome-fs":32,"ip-set":55,"once":73,"simple-get/index":116,"split":121,"zlib":27}],64:[function(require,module,exports){
+},{"_process":102,"chrome-fs":34,"ip-set":62,"once":81,"simple-get/index":132,"split":137,"zlib":29}],71:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
@@ -14379,7 +15104,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
   }
 })(undefined);
 
-},{}],65:[function(require,module,exports){
+},{}],72:[function(require,module,exports){
 (function (Buffer){
 'use strict';
 
@@ -14508,7 +15233,7 @@ function magnetURIEncode(obj) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":154,"thirty-two":131,"uniq":139,"xtend":164}],66:[function(require,module,exports){
+},{"buffer":171,"thirty-two":147,"uniq":156,"xtend":181}],73:[function(require,module,exports){
 'use strict';
 
 module.exports = MediaSourceStream;
@@ -14590,69 +15315,7 @@ function getType(extname) {
   }[extname];
 }
 
-},{"inherits":54,"stream":122}],67:[function(require,module,exports){
-(function (process){
-'use strict';
-
-module.exports = Storage;
-
-function Storage(chunkLength, opts) {
-  if (!(this instanceof Storage)) return new Storage(chunkLength, opts);
-  if (!opts) opts = {};
-
-  this.chunkLength = Number(chunkLength);
-  if (!this.chunkLength) throw new Error('First argument must be a chunk length');
-
-  this.chunks = [];
-  this.closed = false;
-  this.length = Number(opts.length) || Infinity;
-
-  if (this.length !== Infinity) {
-    this.lastChunkLength = this.length % this.chunkLength || this.chunkLength;
-    this.lastChunkIndex = Math.ceil(this.length / this.chunkLength) - 1;
-  }
-}
-
-Storage.prototype.put = function (index, buf, cb) {
-  if (this.closed) return nextTick(cb, new Error('Storage is closed'));
-
-  var isLastChunk = index === this.lastChunkIndex;
-  if (isLastChunk && buf.length !== this.lastChunkLength) {
-    return nextTick(cb, new Error('Last chunk length must be ' + this.lastChunkLength));
-  }
-  if (!isLastChunk && buf.length !== this.chunkLength) {
-    return nextTick(cb, new Error('Chunk length must be ' + this.chunkLength));
-  }
-  this.chunks[index] = buf;
-  nextTick(cb, null);
-};
-
-Storage.prototype.get = function (index, opts, cb) {
-  if (typeof opts === 'function') return this.get(index, null, opts);
-  if (this.closed) return nextTick(cb, new Error('Storage is closed'));
-  var buf = this.chunks[index];
-  if (!buf) return nextTick(cb, new Error('Chunk not found'));
-  if (!opts) return nextTick(cb, null, buf);
-  var offset = opts.offset || 0;
-  var len = opts.length || buf.length - offset;
-  nextTick(cb, null, buf.slice(offset, len + offset));
-};
-
-Storage.prototype.close = Storage.prototype.destroy = function (cb) {
-  if (this.closed) return nextTick(cb, new Error('Storage is closed'));
-  this.closed = true;
-  this.chunks = null;
-  nextTick(cb, null);
-};
-
-function nextTick(cb, err, val) {
-  process.nextTick(function () {
-    if (cb) cb(err, val);
-  });
-}
-
-}).call(this,require('_process'))
-},{"_process":91}],68:[function(require,module,exports){
+},{"inherits":61,"stream":138}],74:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -14766,10 +15429,1007 @@ mime.charsets = {
 module.exports = mime;
 
 }).call(this,require('_process'))
-},{"./types.json":69,"_process":91,"chrome-fs":32,"chrome-path":34}],69:[function(require,module,exports){
+},{"./types.json":75,"_process":102,"chrome-fs":34,"chrome-path":36}],75:[function(require,module,exports){
 module.exports={"application/andrew-inset":["ez"],"application/applixware":["aw"],"application/atom+xml":["atom"],"application/atomcat+xml":["atomcat"],"application/atomsvc+xml":["atomsvc"],"application/ccxml+xml":["ccxml"],"application/cdmi-capability":["cdmia"],"application/cdmi-container":["cdmic"],"application/cdmi-domain":["cdmid"],"application/cdmi-object":["cdmio"],"application/cdmi-queue":["cdmiq"],"application/cu-seeme":["cu"],"application/dash+xml":["mdp"],"application/davmount+xml":["davmount"],"application/docbook+xml":["dbk"],"application/dssc+der":["dssc"],"application/dssc+xml":["xdssc"],"application/ecmascript":["ecma"],"application/emma+xml":["emma"],"application/epub+zip":["epub"],"application/exi":["exi"],"application/font-tdpfr":["pfr"],"application/font-woff":["woff"],"application/font-woff2":["woff2"],"application/gml+xml":["gml"],"application/gpx+xml":["gpx"],"application/gxf":["gxf"],"application/hyperstudio":["stk"],"application/inkml+xml":["ink","inkml"],"application/ipfix":["ipfix"],"application/java-archive":["jar"],"application/java-serialized-object":["ser"],"application/java-vm":["class"],"application/javascript":["js"],"application/json":["json","map"],"application/json5":["json5"],"application/jsonml+json":["jsonml"],"application/lost+xml":["lostxml"],"application/mac-binhex40":["hqx"],"application/mac-compactpro":["cpt"],"application/mads+xml":["mads"],"application/marc":["mrc"],"application/marcxml+xml":["mrcx"],"application/mathematica":["ma","nb","mb"],"application/mathml+xml":["mathml"],"application/mbox":["mbox"],"application/mediaservercontrol+xml":["mscml"],"application/metalink+xml":["metalink"],"application/metalink4+xml":["meta4"],"application/mets+xml":["mets"],"application/mods+xml":["mods"],"application/mp21":["m21","mp21"],"application/mp4":["mp4s","m4p"],"application/msword":["doc","dot"],"application/mxf":["mxf"],"application/octet-stream":["bin","dms","lrf","mar","so","dist","distz","pkg","bpk","dump","elc","deploy","buffer"],"application/oda":["oda"],"application/oebps-package+xml":["opf"],"application/ogg":["ogx"],"application/omdoc+xml":["omdoc"],"application/onenote":["onetoc","onetoc2","onetmp","onepkg"],"application/oxps":["oxps"],"application/patch-ops-error+xml":["xer"],"application/pdf":["pdf"],"application/pgp-encrypted":["pgp"],"application/pgp-signature":["asc","sig"],"application/pics-rules":["prf"],"application/pkcs10":["p10"],"application/pkcs7-mime":["p7m","p7c"],"application/pkcs7-signature":["p7s"],"application/pkcs8":["p8"],"application/pkix-attr-cert":["ac"],"application/pkix-cert":["cer"],"application/pkix-crl":["crl"],"application/pkix-pkipath":["pkipath"],"application/pkixcmp":["pki"],"application/pls+xml":["pls"],"application/postscript":["ai","eps","ps"],"application/prs.cww":["cww"],"application/pskc+xml":["pskcxml"],"application/rdf+xml":["rdf"],"application/reginfo+xml":["rif"],"application/relax-ng-compact-syntax":["rnc"],"application/resource-lists+xml":["rl"],"application/resource-lists-diff+xml":["rld"],"application/rls-services+xml":["rs"],"application/rpki-ghostbusters":["gbr"],"application/rpki-manifest":["mft"],"application/rpki-roa":["roa"],"application/rsd+xml":["rsd"],"application/rss+xml":["rss"],"application/rtf":["rtf"],"application/sbml+xml":["sbml"],"application/scvp-cv-request":["scq"],"application/scvp-cv-response":["scs"],"application/scvp-vp-request":["spq"],"application/scvp-vp-response":["spp"],"application/sdp":["sdp"],"application/set-payment-initiation":["setpay"],"application/set-registration-initiation":["setreg"],"application/shf+xml":["shf"],"application/smil+xml":["smi","smil"],"application/sparql-query":["rq"],"application/sparql-results+xml":["srx"],"application/srgs":["gram"],"application/srgs+xml":["grxml"],"application/sru+xml":["sru"],"application/ssdl+xml":["ssdl"],"application/ssml+xml":["ssml"],"application/tei+xml":["tei","teicorpus"],"application/thraud+xml":["tfi"],"application/timestamped-data":["tsd"],"application/vnd.3gpp.pic-bw-large":["plb"],"application/vnd.3gpp.pic-bw-small":["psb"],"application/vnd.3gpp.pic-bw-var":["pvb"],"application/vnd.3gpp2.tcap":["tcap"],"application/vnd.3m.post-it-notes":["pwn"],"application/vnd.accpac.simply.aso":["aso"],"application/vnd.accpac.simply.imp":["imp"],"application/vnd.acucobol":["acu"],"application/vnd.acucorp":["atc","acutc"],"application/vnd.adobe.air-application-installer-package+zip":["air"],"application/vnd.adobe.formscentral.fcdt":["fcdt"],"application/vnd.adobe.fxp":["fxp","fxpl"],"application/vnd.adobe.xdp+xml":["xdp"],"application/vnd.adobe.xfdf":["xfdf"],"application/vnd.ahead.space":["ahead"],"application/vnd.airzip.filesecure.azf":["azf"],"application/vnd.airzip.filesecure.azs":["azs"],"application/vnd.amazon.ebook":["azw"],"application/vnd.americandynamics.acc":["acc"],"application/vnd.amiga.ami":["ami"],"application/vnd.android.package-archive":["apk"],"application/vnd.anser-web-certificate-issue-initiation":["cii"],"application/vnd.anser-web-funds-transfer-initiation":["fti"],"application/vnd.antix.game-component":["atx"],"application/vnd.apple.installer+xml":["mpkg"],"application/vnd.apple.mpegurl":["m3u8"],"application/vnd.aristanetworks.swi":["swi"],"application/vnd.astraea-software.iota":["iota"],"application/vnd.audiograph":["aep"],"application/vnd.blueice.multipass":["mpm"],"application/vnd.bmi":["bmi"],"application/vnd.businessobjects":["rep"],"application/vnd.chemdraw+xml":["cdxml"],"application/vnd.chipnuts.karaoke-mmd":["mmd"],"application/vnd.cinderella":["cdy"],"application/vnd.claymore":["cla"],"application/vnd.cloanto.rp9":["rp9"],"application/vnd.clonk.c4group":["c4g","c4d","c4f","c4p","c4u"],"application/vnd.cluetrust.cartomobile-config":["c11amc"],"application/vnd.cluetrust.cartomobile-config-pkg":["c11amz"],"application/vnd.commonspace":["csp"],"application/vnd.contact.cmsg":["cdbcmsg"],"application/vnd.cosmocaller":["cmc"],"application/vnd.crick.clicker":["clkx"],"application/vnd.crick.clicker.keyboard":["clkk"],"application/vnd.crick.clicker.palette":["clkp"],"application/vnd.crick.clicker.template":["clkt"],"application/vnd.crick.clicker.wordbank":["clkw"],"application/vnd.criticaltools.wbs+xml":["wbs"],"application/vnd.ctc-posml":["pml"],"application/vnd.cups-ppd":["ppd"],"application/vnd.curl.car":["car"],"application/vnd.curl.pcurl":["pcurl"],"application/vnd.dart":["dart"],"application/vnd.data-vision.rdz":["rdz"],"application/vnd.dece.data":["uvf","uvvf","uvd","uvvd"],"application/vnd.dece.ttml+xml":["uvt","uvvt"],"application/vnd.dece.unspecified":["uvx","uvvx"],"application/vnd.dece.zip":["uvz","uvvz"],"application/vnd.denovo.fcselayout-link":["fe_launch"],"application/vnd.dna":["dna"],"application/vnd.dolby.mlp":["mlp"],"application/vnd.dpgraph":["dpg"],"application/vnd.dreamfactory":["dfac"],"application/vnd.ds-keypoint":["kpxx"],"application/vnd.dvb.ait":["ait"],"application/vnd.dvb.service":["svc"],"application/vnd.dynageo":["geo"],"application/vnd.ecowin.chart":["mag"],"application/vnd.enliven":["nml"],"application/vnd.epson.esf":["esf"],"application/vnd.epson.msf":["msf"],"application/vnd.epson.quickanime":["qam"],"application/vnd.epson.salt":["slt"],"application/vnd.epson.ssf":["ssf"],"application/vnd.eszigno3+xml":["es3","et3"],"application/vnd.ezpix-album":["ez2"],"application/vnd.ezpix-package":["ez3"],"application/vnd.fdf":["fdf"],"application/vnd.fdsn.mseed":["mseed"],"application/vnd.fdsn.seed":["seed","dataless"],"application/vnd.flographit":["gph"],"application/vnd.fluxtime.clip":["ftc"],"application/vnd.framemaker":["fm","frame","maker","book"],"application/vnd.frogans.fnc":["fnc"],"application/vnd.frogans.ltf":["ltf"],"application/vnd.fsc.weblaunch":["fsc"],"application/vnd.fujitsu.oasys":["oas"],"application/vnd.fujitsu.oasys2":["oa2"],"application/vnd.fujitsu.oasys3":["oa3"],"application/vnd.fujitsu.oasysgp":["fg5"],"application/vnd.fujitsu.oasysprs":["bh2"],"application/vnd.fujixerox.ddd":["ddd"],"application/vnd.fujixerox.docuworks":["xdw"],"application/vnd.fujixerox.docuworks.binder":["xbd"],"application/vnd.fuzzysheet":["fzs"],"application/vnd.genomatix.tuxedo":["txd"],"application/vnd.geogebra.file":["ggb"],"application/vnd.geogebra.tool":["ggt"],"application/vnd.geometry-explorer":["gex","gre"],"application/vnd.geonext":["gxt"],"application/vnd.geoplan":["g2w"],"application/vnd.geospace":["g3w"],"application/vnd.gmx":["gmx"],"application/vnd.google-earth.kml+xml":["kml"],"application/vnd.google-earth.kmz":["kmz"],"application/vnd.grafeq":["gqf","gqs"],"application/vnd.groove-account":["gac"],"application/vnd.groove-help":["ghf"],"application/vnd.groove-identity-message":["gim"],"application/vnd.groove-injector":["grv"],"application/vnd.groove-tool-message":["gtm"],"application/vnd.groove-tool-template":["tpl"],"application/vnd.groove-vcard":["vcg"],"application/vnd.hal+xml":["hal"],"application/vnd.handheld-entertainment+xml":["zmm"],"application/vnd.hbci":["hbci"],"application/vnd.hhe.lesson-player":["les"],"application/vnd.hp-hpgl":["hpgl"],"application/vnd.hp-hpid":["hpid"],"application/vnd.hp-hps":["hps"],"application/vnd.hp-jlyt":["jlt"],"application/vnd.hp-pcl":["pcl"],"application/vnd.hp-pclxl":["pclxl"],"application/vnd.ibm.minipay":["mpy"],"application/vnd.ibm.modcap":["afp","listafp","list3820"],"application/vnd.ibm.rights-management":["irm"],"application/vnd.ibm.secure-container":["sc"],"application/vnd.iccprofile":["icc","icm"],"application/vnd.igloader":["igl"],"application/vnd.immervision-ivp":["ivp"],"application/vnd.immervision-ivu":["ivu"],"application/vnd.insors.igm":["igm"],"application/vnd.intercon.formnet":["xpw","xpx"],"application/vnd.intergeo":["i2g"],"application/vnd.intu.qbo":["qbo"],"application/vnd.intu.qfx":["qfx"],"application/vnd.ipunplugged.rcprofile":["rcprofile"],"application/vnd.irepository.package+xml":["irp"],"application/vnd.is-xpr":["xpr"],"application/vnd.isac.fcs":["fcs"],"application/vnd.jam":["jam"],"application/vnd.jcp.javame.midlet-rms":["rms"],"application/vnd.jisp":["jisp"],"application/vnd.joost.joda-archive":["joda"],"application/vnd.kahootz":["ktz","ktr"],"application/vnd.kde.karbon":["karbon"],"application/vnd.kde.kchart":["chrt"],"application/vnd.kde.kformula":["kfo"],"application/vnd.kde.kivio":["flw"],"application/vnd.kde.kontour":["kon"],"application/vnd.kde.kpresenter":["kpr","kpt"],"application/vnd.kde.kspread":["ksp"],"application/vnd.kde.kword":["kwd","kwt"],"application/vnd.kenameaapp":["htke"],"application/vnd.kidspiration":["kia"],"application/vnd.kinar":["kne","knp"],"application/vnd.koan":["skp","skd","skt","skm"],"application/vnd.kodak-descriptor":["sse"],"application/vnd.las.las+xml":["lasxml"],"application/vnd.llamagraphics.life-balance.desktop":["lbd"],"application/vnd.llamagraphics.life-balance.exchange+xml":["lbe"],"application/vnd.lotus-1-2-3":["123"],"application/vnd.lotus-approach":["apr"],"application/vnd.lotus-freelance":["pre"],"application/vnd.lotus-notes":["nsf"],"application/vnd.lotus-organizer":["org"],"application/vnd.lotus-screencam":["scm"],"application/vnd.lotus-wordpro":["lwp"],"application/vnd.macports.portpkg":["portpkg"],"application/vnd.mcd":["mcd"],"application/vnd.medcalcdata":["mc1"],"application/vnd.mediastation.cdkey":["cdkey"],"application/vnd.mfer":["mwf"],"application/vnd.mfmp":["mfm"],"application/vnd.micrografx.flo":["flo"],"application/vnd.micrografx.igx":["igx"],"application/vnd.mif":["mif"],"application/vnd.mobius.daf":["daf"],"application/vnd.mobius.dis":["dis"],"application/vnd.mobius.mbk":["mbk"],"application/vnd.mobius.mqy":["mqy"],"application/vnd.mobius.msl":["msl"],"application/vnd.mobius.plc":["plc"],"application/vnd.mobius.txf":["txf"],"application/vnd.mophun.application":["mpn"],"application/vnd.mophun.certificate":["mpc"],"application/vnd.mozilla.xul+xml":["xul"],"application/vnd.ms-artgalry":["cil"],"application/vnd.ms-cab-compressed":["cab"],"application/vnd.ms-excel":["xls","xlm","xla","xlc","xlt","xlw"],"application/vnd.ms-excel.addin.macroenabled.12":["xlam"],"application/vnd.ms-excel.sheet.binary.macroenabled.12":["xlsb"],"application/vnd.ms-excel.sheet.macroenabled.12":["xlsm"],"application/vnd.ms-excel.template.macroenabled.12":["xltm"],"application/vnd.ms-fontobject":["eot"],"application/vnd.ms-htmlhelp":["chm"],"application/vnd.ms-ims":["ims"],"application/vnd.ms-lrm":["lrm"],"application/vnd.ms-officetheme":["thmx"],"application/vnd.ms-pki.seccat":["cat"],"application/vnd.ms-pki.stl":["stl"],"application/vnd.ms-powerpoint":["ppt","pps","pot"],"application/vnd.ms-powerpoint.addin.macroenabled.12":["ppam"],"application/vnd.ms-powerpoint.presentation.macroenabled.12":["pptm"],"application/vnd.ms-powerpoint.slide.macroenabled.12":["sldm"],"application/vnd.ms-powerpoint.slideshow.macroenabled.12":["ppsm"],"application/vnd.ms-powerpoint.template.macroenabled.12":["potm"],"application/vnd.ms-project":["mpp","mpt"],"application/vnd.ms-word.document.macroenabled.12":["docm"],"application/vnd.ms-word.template.macroenabled.12":["dotm"],"application/vnd.ms-works":["wps","wks","wcm","wdb"],"application/vnd.ms-wpl":["wpl"],"application/vnd.ms-xpsdocument":["xps"],"application/vnd.mseq":["mseq"],"application/vnd.musician":["mus"],"application/vnd.muvee.style":["msty"],"application/vnd.mynfc":["taglet"],"application/vnd.neurolanguage.nlu":["nlu"],"application/vnd.nitf":["ntf","nitf"],"application/vnd.noblenet-directory":["nnd"],"application/vnd.noblenet-sealer":["nns"],"application/vnd.noblenet-web":["nnw"],"application/vnd.nokia.n-gage.data":["ngdat"],"application/vnd.nokia.radio-preset":["rpst"],"application/vnd.nokia.radio-presets":["rpss"],"application/vnd.novadigm.edm":["edm"],"application/vnd.novadigm.edx":["edx"],"application/vnd.novadigm.ext":["ext"],"application/vnd.oasis.opendocument.chart":["odc"],"application/vnd.oasis.opendocument.chart-template":["otc"],"application/vnd.oasis.opendocument.database":["odb"],"application/vnd.oasis.opendocument.formula":["odf"],"application/vnd.oasis.opendocument.formula-template":["odft"],"application/vnd.oasis.opendocument.graphics":["odg"],"application/vnd.oasis.opendocument.graphics-template":["otg"],"application/vnd.oasis.opendocument.image":["odi"],"application/vnd.oasis.opendocument.image-template":["oti"],"application/vnd.oasis.opendocument.presentation":["odp"],"application/vnd.oasis.opendocument.presentation-template":["otp"],"application/vnd.oasis.opendocument.spreadsheet":["ods"],"application/vnd.oasis.opendocument.spreadsheet-template":["ots"],"application/vnd.oasis.opendocument.text":["odt"],"application/vnd.oasis.opendocument.text-master":["odm"],"application/vnd.oasis.opendocument.text-template":["ott"],"application/vnd.oasis.opendocument.text-web":["oth"],"application/vnd.olpc-sugar":["xo"],"application/vnd.oma.dd2+xml":["dd2"],"application/vnd.openofficeorg.extension":["oxt"],"application/vnd.openxmlformats-officedocument.presentationml.presentation":["pptx"],"application/vnd.openxmlformats-officedocument.presentationml.slide":["sldx"],"application/vnd.openxmlformats-officedocument.presentationml.slideshow":["ppsx"],"application/vnd.openxmlformats-officedocument.presentationml.template":["potx"],"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":["xlsx"],"application/vnd.openxmlformats-officedocument.spreadsheetml.template":["xltx"],"application/vnd.openxmlformats-officedocument.wordprocessingml.document":["docx"],"application/vnd.openxmlformats-officedocument.wordprocessingml.template":["dotx"],"application/vnd.osgeo.mapguide.package":["mgp"],"application/vnd.osgi.dp":["dp"],"application/vnd.osgi.subsystem":["esa"],"application/vnd.palm":["pdb","pqa","oprc"],"application/vnd.pawaafile":["paw"],"application/vnd.pg.format":["str"],"application/vnd.pg.osasli":["ei6"],"application/vnd.picsel":["efif"],"application/vnd.pmi.widget":["wg"],"application/vnd.pocketlearn":["plf"],"application/vnd.powerbuilder6":["pbd"],"application/vnd.previewsystems.box":["box"],"application/vnd.proteus.magazine":["mgz"],"application/vnd.publishare-delta-tree":["qps"],"application/vnd.pvi.ptid1":["ptid"],"application/vnd.quark.quarkxpress":["qxd","qxt","qwd","qwt","qxl","qxb"],"application/vnd.realvnc.bed":["bed"],"application/vnd.recordare.musicxml":["mxl"],"application/vnd.recordare.musicxml+xml":["musicxml"],"application/vnd.rig.cryptonote":["cryptonote"],"application/vnd.rim.cod":["cod"],"application/vnd.rn-realmedia":["rm"],"application/vnd.rn-realmedia-vbr":["rmvb"],"application/vnd.route66.link66+xml":["link66"],"application/vnd.sailingtracker.track":["st"],"application/vnd.seemail":["see"],"application/vnd.sema":["sema"],"application/vnd.semd":["semd"],"application/vnd.semf":["semf"],"application/vnd.shana.informed.formdata":["ifm"],"application/vnd.shana.informed.formtemplate":["itp"],"application/vnd.shana.informed.interchange":["iif"],"application/vnd.shana.informed.package":["ipk"],"application/vnd.simtech-mindmapper":["twd","twds"],"application/vnd.smaf":["mmf"],"application/vnd.smart.teacher":["teacher"],"application/vnd.solent.sdkm+xml":["sdkm","sdkd"],"application/vnd.spotfire.dxp":["dxp"],"application/vnd.spotfire.sfs":["sfs"],"application/vnd.stardivision.calc":["sdc"],"application/vnd.stardivision.draw":["sda"],"application/vnd.stardivision.impress":["sdd"],"application/vnd.stardivision.math":["smf"],"application/vnd.stardivision.writer":["sdw","vor"],"application/vnd.stardivision.writer-global":["sgl"],"application/vnd.stepmania.package":["smzip"],"application/vnd.stepmania.stepchart":["sm"],"application/vnd.sun.xml.calc":["sxc"],"application/vnd.sun.xml.calc.template":["stc"],"application/vnd.sun.xml.draw":["sxd"],"application/vnd.sun.xml.draw.template":["std"],"application/vnd.sun.xml.impress":["sxi"],"application/vnd.sun.xml.impress.template":["sti"],"application/vnd.sun.xml.math":["sxm"],"application/vnd.sun.xml.writer":["sxw"],"application/vnd.sun.xml.writer.global":["sxg"],"application/vnd.sun.xml.writer.template":["stw"],"application/vnd.sus-calendar":["sus","susp"],"application/vnd.svd":["svd"],"application/vnd.symbian.install":["sis","sisx"],"application/vnd.syncml+xml":["xsm"],"application/vnd.syncml.dm+wbxml":["bdm"],"application/vnd.syncml.dm+xml":["xdm"],"application/vnd.tao.intent-module-archive":["tao"],"application/vnd.tcpdump.pcap":["pcap","cap","dmp"],"application/vnd.tmobile-livetv":["tmo"],"application/vnd.trid.tpt":["tpt"],"application/vnd.triscape.mxs":["mxs"],"application/vnd.trueapp":["tra"],"application/vnd.ufdl":["ufd","ufdl"],"application/vnd.uiq.theme":["utz"],"application/vnd.umajin":["umj"],"application/vnd.unity":["unityweb"],"application/vnd.uoml+xml":["uoml"],"application/vnd.vcx":["vcx"],"application/vnd.visio":["vsd","vst","vss","vsw"],"application/vnd.visionary":["vis"],"application/vnd.vsf":["vsf"],"application/vnd.wap.wbxml":["wbxml"],"application/vnd.wap.wmlc":["wmlc"],"application/vnd.wap.wmlscriptc":["wmlsc"],"application/vnd.webturbo":["wtb"],"application/vnd.wolfram.player":["nbp"],"application/vnd.wordperfect":["wpd"],"application/vnd.wqd":["wqd"],"application/vnd.wt.stf":["stf"],"application/vnd.xara":["xar"],"application/vnd.xfdl":["xfdl"],"application/vnd.yamaha.hv-dic":["hvd"],"application/vnd.yamaha.hv-script":["hvs"],"application/vnd.yamaha.hv-voice":["hvp"],"application/vnd.yamaha.openscoreformat":["osf"],"application/vnd.yamaha.openscoreformat.osfpvg+xml":["osfpvg"],"application/vnd.yamaha.smaf-audio":["saf"],"application/vnd.yamaha.smaf-phrase":["spf"],"application/vnd.yellowriver-custom-menu":["cmp"],"application/vnd.zul":["zir","zirz"],"application/vnd.zzazz.deck+xml":["zaz"],"application/voicexml+xml":["vxml"],"application/widget":["wgt"],"application/winhlp":["hlp"],"application/wsdl+xml":["wsdl"],"application/wspolicy+xml":["wspolicy"],"application/x-7z-compressed":["7z"],"application/x-abiword":["abw"],"application/x-ace-compressed":["ace"],"application/x-apple-diskimage":["dmg"],"application/x-authorware-bin":["aab","x32","u32","vox"],"application/x-authorware-map":["aam"],"application/x-authorware-seg":["aas"],"application/x-bcpio":["bcpio"],"application/x-bittorrent":["torrent"],"application/x-blorb":["blb","blorb"],"application/x-bzip":["bz"],"application/x-bzip2":["bz2","boz"],"application/x-cbr":["cbr","cba","cbt","cbz","cb7"],"application/x-cdlink":["vcd"],"application/x-cfs-compressed":["cfs"],"application/x-chat":["chat"],"application/x-chess-pgn":["pgn"],"application/x-chrome-extension":["crx"],"application/x-conference":["nsc"],"application/x-cpio":["cpio"],"application/x-csh":["csh"],"application/x-debian-package":["deb","udeb"],"application/x-dgc-compressed":["dgc"],"application/x-director":["dir","dcr","dxr","cst","cct","cxt","w3d","fgd","swa"],"application/x-doom":["wad"],"application/x-dtbncx+xml":["ncx"],"application/x-dtbook+xml":["dtb"],"application/x-dtbresource+xml":["res"],"application/x-dvi":["dvi"],"application/x-envoy":["evy"],"application/x-eva":["eva"],"application/x-font-bdf":["bdf"],"application/x-font-ghostscript":["gsf"],"application/x-font-linux-psf":["psf"],"application/x-font-otf":["otf"],"application/x-font-pcf":["pcf"],"application/x-font-snf":["snf"],"application/x-font-ttf":["ttf","ttc"],"application/x-font-type1":["pfa","pfb","pfm","afm"],"application/x-freearc":["arc"],"application/x-futuresplash":["spl"],"application/x-gca-compressed":["gca"],"application/x-glulx":["ulx"],"application/x-gnumeric":["gnumeric"],"application/x-gramps-xml":["gramps"],"application/x-gtar":["gtar"],"application/x-hdf":["hdf"],"application/x-install-instructions":["install"],"application/x-iso9660-image":["iso"],"application/x-java-jnlp-file":["jnlp"],"application/x-latex":["latex"],"application/x-lua-bytecode":["luac"],"application/x-lzh-compressed":["lzh","lha"],"application/x-mie":["mie"],"application/x-mobipocket-ebook":["prc","mobi"],"application/x-ms-application":["application"],"application/x-ms-shortcut":["lnk"],"application/x-ms-wmd":["wmd"],"application/x-ms-wmz":["wmz"],"application/x-ms-xbap":["xbap"],"application/x-msaccess":["mdb"],"application/x-msbinder":["obd"],"application/x-mscardfile":["crd"],"application/x-msclip":["clp"],"application/x-msdownload":["exe","dll","com","bat","msi"],"application/x-msmediaview":["mvb","m13","m14"],"application/x-msmetafile":["wmf","wmz","emf","emz"],"application/x-msmoney":["mny"],"application/x-mspublisher":["pub"],"application/x-msschedule":["scd"],"application/x-msterminal":["trm"],"application/x-mswrite":["wri"],"application/x-netcdf":["nc","cdf"],"application/x-nzb":["nzb"],"application/x-pkcs12":["p12","pfx"],"application/x-pkcs7-certificates":["p7b","spc"],"application/x-pkcs7-certreqresp":["p7r"],"application/x-rar-compressed":["rar"],"application/x-research-info-systems":["ris"],"application/x-sh":["sh"],"application/x-shar":["shar"],"application/x-shockwave-flash":["swf"],"application/x-silverlight-app":["xap"],"application/x-sql":["sql"],"application/x-stuffit":["sit"],"application/x-stuffitx":["sitx"],"application/x-subrip":["srt"],"application/x-sv4cpio":["sv4cpio"],"application/x-sv4crc":["sv4crc"],"application/x-t3vm-image":["t3"],"application/x-tads":["gam"],"application/x-tar":["tar"],"application/x-tcl":["tcl"],"application/x-tex":["tex"],"application/x-tex-tfm":["tfm"],"application/x-texinfo":["texinfo","texi"],"application/x-tgif":["obj"],"application/x-ustar":["ustar"],"application/x-wais-source":["src"],"application/x-web-app-manifest+json":["webapp"],"application/x-x509-ca-cert":["der","crt"],"application/x-xfig":["fig"],"application/x-xliff+xml":["xlf"],"application/x-xpinstall":["xpi"],"application/x-xz":["xz"],"application/x-zmachine":["z1","z2","z3","z4","z5","z6","z7","z8"],"application/xaml+xml":["xaml"],"application/xcap-diff+xml":["xdf"],"application/xenc+xml":["xenc"],"application/xhtml+xml":["xhtml","xht"],"application/xml":["xml","xsl","xsd"],"application/xml-dtd":["dtd"],"application/xop+xml":["xop"],"application/xproc+xml":["xpl"],"application/xslt+xml":["xslt"],"application/xspf+xml":["xspf"],"application/xv+xml":["mxml","xhvml","xvml","xvm"],"application/yang":["yang"],"application/yin+xml":["yin"],"application/zip":["zip"],"audio/adpcm":["adp"],"audio/basic":["au","snd"],"audio/midi":["mid","midi","kar","rmi"],"audio/mp4":["mp4a","m4a"],"audio/mpeg":["mpga","mp2","mp2a","mp3","m2a","m3a"],"audio/ogg":["oga","ogg","spx"],"audio/s3m":["s3m"],"audio/silk":["sil"],"audio/vnd.dece.audio":["uva","uvva"],"audio/vnd.digital-winds":["eol"],"audio/vnd.dra":["dra"],"audio/vnd.dts":["dts"],"audio/vnd.dts.hd":["dtshd"],"audio/vnd.lucent.voice":["lvp"],"audio/vnd.ms-playready.media.pya":["pya"],"audio/vnd.nuera.ecelp4800":["ecelp4800"],"audio/vnd.nuera.ecelp7470":["ecelp7470"],"audio/vnd.nuera.ecelp9600":["ecelp9600"],"audio/vnd.rip":["rip"],"audio/webm":["weba"],"audio/x-aac":["aac"],"audio/x-aiff":["aif","aiff","aifc"],"audio/x-caf":["caf"],"audio/x-flac":["flac"],"audio/x-matroska":["mka"],"audio/x-mpegurl":["m3u"],"audio/x-ms-wax":["wax"],"audio/x-ms-wma":["wma"],"audio/x-pn-realaudio":["ram","ra"],"audio/x-pn-realaudio-plugin":["rmp"],"audio/x-wav":["wav"],"audio/xm":["xm"],"chemical/x-cdx":["cdx"],"chemical/x-cif":["cif"],"chemical/x-cmdf":["cmdf"],"chemical/x-cml":["cml"],"chemical/x-csml":["csml"],"chemical/x-xyz":["xyz"],"font/opentype":["otf"],"image/bmp":["bmp"],"image/cgm":["cgm"],"image/g3fax":["g3"],"image/gif":["gif"],"image/ief":["ief"],"image/jpeg":["jpeg","jpg","jpe"],"image/ktx":["ktx"],"image/png":["png"],"image/prs.btif":["btif"],"image/sgi":["sgi"],"image/svg+xml":["svg","svgz"],"image/tiff":["tiff","tif"],"image/vnd.adobe.photoshop":["psd"],"image/vnd.dece.graphic":["uvi","uvvi","uvg","uvvg"],"image/vnd.djvu":["djvu","djv"],"image/vnd.dvb.subtitle":["sub"],"image/vnd.dwg":["dwg"],"image/vnd.dxf":["dxf"],"image/vnd.fastbidsheet":["fbs"],"image/vnd.fpx":["fpx"],"image/vnd.fst":["fst"],"image/vnd.fujixerox.edmics-mmr":["mmr"],"image/vnd.fujixerox.edmics-rlc":["rlc"],"image/vnd.ms-modi":["mdi"],"image/vnd.ms-photo":["wdp"],"image/vnd.net-fpx":["npx"],"image/vnd.wap.wbmp":["wbmp"],"image/vnd.xiff":["xif"],"image/webp":["webp"],"image/x-3ds":["3ds"],"image/x-cmu-raster":["ras"],"image/x-cmx":["cmx"],"image/x-freehand":["fh","fhc","fh4","fh5","fh7"],"image/x-icon":["ico"],"image/x-mrsid-image":["sid"],"image/x-pcx":["pcx"],"image/x-pict":["pic","pct"],"image/x-portable-anymap":["pnm"],"image/x-portable-bitmap":["pbm"],"image/x-portable-graymap":["pgm"],"image/x-portable-pixmap":["ppm"],"image/x-rgb":["rgb"],"image/x-tga":["tga"],"image/x-xbitmap":["xbm"],"image/x-xpixmap":["xpm"],"image/x-xwindowdump":["xwd"],"message/rfc822":["eml","mime"],"model/iges":["igs","iges"],"model/mesh":["msh","mesh","silo"],"model/vnd.collada+xml":["dae"],"model/vnd.dwf":["dwf"],"model/vnd.gdl":["gdl"],"model/vnd.gtw":["gtw"],"model/vnd.mts":["mts"],"model/vnd.vtu":["vtu"],"model/vrml":["wrl","vrml"],"model/x3d+binary":["x3db","x3dbz"],"model/x3d+vrml":["x3dv","x3dvz"],"model/x3d+xml":["x3d","x3dz"],"text/cache-manifest":["appcache","manifest"],"text/calendar":["ics","ifb"],"text/coffeescript":["coffee"],"text/css":["css"],"text/csv":["csv"],"text/hjson":["hjson"],"text/html":["html","htm"],"text/jade":["jade"],"text/jsx":["jsx"],"text/less":["less"],"text/n3":["n3"],"text/plain":["txt","text","conf","def","list","log","in","ini"],"text/prs.lines.tag":["dsc"],"text/richtext":["rtx"],"text/sgml":["sgml","sgm"],"text/stylus":["stylus","styl"],"text/tab-separated-values":["tsv"],"text/troff":["t","tr","roff","man","me","ms"],"text/turtle":["ttl"],"text/uri-list":["uri","uris","urls"],"text/vcard":["vcard"],"text/vnd.curl":["curl"],"text/vnd.curl.dcurl":["dcurl"],"text/vnd.curl.mcurl":["mcurl"],"text/vnd.curl.scurl":["scurl"],"text/vnd.dvb.subtitle":["sub"],"text/vnd.fly":["fly"],"text/vnd.fmi.flexstor":["flx"],"text/vnd.graphviz":["gv"],"text/vnd.in3d.3dml":["3dml"],"text/vnd.in3d.spot":["spot"],"text/vnd.sun.j2me.app-descriptor":["jad"],"text/vnd.wap.wml":["wml"],"text/vnd.wap.wmlscript":["wmls"],"text/vtt":["vtt"],"text/x-asm":["s","asm"],"text/x-c":["c","cc","cxx","cpp","h","hh","dic"],"text/x-component":["htc"],"text/x-fortran":["f","for","f77","f90"],"text/x-handlebars-template":["hbs"],"text/x-java-source":["java"],"text/x-lua":["lua"],"text/x-markdown":["markdown","md","mkd"],"text/x-nfo":["nfo"],"text/x-opml":["opml"],"text/x-pascal":["p","pas"],"text/x-sass":["sass"],"text/x-scss":["scss"],"text/x-setext":["etx"],"text/x-sfv":["sfv"],"text/x-uuencode":["uu"],"text/x-vcalendar":["vcs"],"text/x-vcard":["vcf"],"text/yaml":["yaml","yml"],"video/3gpp":["3gp"],"video/3gpp2":["3g2"],"video/h261":["h261"],"video/h263":["h263"],"video/h264":["h264"],"video/jpeg":["jpgv"],"video/jpm":["jpm","jpgm"],"video/mj2":["mj2","mjp2"],"video/mp2t":["ts"],"video/mp4":["mp4","mp4v","mpg4"],"video/mpeg":["mpeg","mpg","mpe","m1v","m2v"],"video/ogg":["ogv"],"video/quicktime":["qt","mov"],"video/vnd.dece.hd":["uvh","uvvh"],"video/vnd.dece.mobile":["uvm","uvvm"],"video/vnd.dece.pd":["uvp","uvvp"],"video/vnd.dece.sd":["uvs","uvvs"],"video/vnd.dece.video":["uvv","uvvv"],"video/vnd.dvb.file":["dvb"],"video/vnd.fvt":["fvt"],"video/vnd.mpegurl":["mxu","m4u"],"video/vnd.ms-playready.media.pyv":["pyv"],"video/vnd.uvvu.mp4":["uvu","uvvu"],"video/vnd.vivo":["viv"],"video/webm":["webm"],"video/x-f4v":["f4v"],"video/x-fli":["fli"],"video/x-flv":["flv"],"video/x-m4v":["m4v"],"video/x-matroska":["mkv","mk3d","mks"],"video/x-mng":["mng"],"video/x-ms-asf":["asf","asx"],"video/x-ms-vob":["vob"],"video/x-ms-wm":["wm"],"video/x-ms-wmv":["wmv"],"video/x-ms-wmx":["wmx"],"video/x-ms-wvx":["wvx"],"video/x-msvideo":["avi"],"video/x-sgi-movie":["movie"],"video/x-smv":["smv"],"x-conference/x-cooltalk":["ice"]}
 
-},{}],70:[function(require,module,exports){
+},{}],76:[function(require,module,exports){
+'use strict';
+
+module.exports = minimatch;
+minimatch.Minimatch = Minimatch;
+
+var path = { sep: '/' };
+try {
+  path = require('chrome-path');
+} catch (er) {}
+
+var GLOBSTAR = minimatch.GLOBSTAR = Minimatch.GLOBSTAR = {};
+var expand = require('brace-expansion');
+
+// any single thing other than /
+// don't need to escape / when using new RegExp()
+var qmark = '[^/]';
+
+// * => any number of characters
+var star = qmark + '*?';
+
+// ** when dots are allowed.  Anything goes, except .. and .
+// not (^ or / followed by one or two dots followed by $ or /),
+// followed by anything, any number of times.
+var twoStarDot = '(?:(?!(?:\\\/|^)(?:\\.{1,2})($|\\\/)).)*?';
+
+// not a ^ or / followed by a dot,
+// followed by anything, any number of times.
+var twoStarNoDot = '(?:(?!(?:\\\/|^)\\.).)*?';
+
+// characters that need to be escaped in RegExp.
+var reSpecials = charSet('().*{}+?[]^$\\!');
+
+// "abc" -> { a:true, b:true, c:true }
+function charSet(s) {
+  return s.split('').reduce(function (set, c) {
+    set[c] = true;
+    return set;
+  }, {});
+}
+
+// normalizes slashes.
+var slashSplit = /\/+/;
+
+minimatch.filter = filter;
+function filter(pattern, options) {
+  options = options || {};
+  return function (p, i, list) {
+    return minimatch(p, pattern, options);
+  };
+}
+
+function ext(a, b) {
+  a = a || {};
+  b = b || {};
+  var t = {};
+  Object.keys(b).forEach(function (k) {
+    t[k] = b[k];
+  });
+  Object.keys(a).forEach(function (k) {
+    t[k] = a[k];
+  });
+  return t;
+}
+
+minimatch.defaults = function (def) {
+  if (!def || !Object.keys(def).length) return minimatch;
+
+  var orig = minimatch;
+
+  var m = function minimatch(p, pattern, options) {
+    return orig.minimatch(p, pattern, ext(def, options));
+  };
+
+  m.Minimatch = function Minimatch(pattern, options) {
+    return new orig.Minimatch(pattern, ext(def, options));
+  };
+
+  return m;
+};
+
+Minimatch.defaults = function (def) {
+  if (!def || !Object.keys(def).length) return Minimatch;
+  return minimatch.defaults(def).Minimatch;
+};
+
+function minimatch(p, pattern, options) {
+  if (typeof pattern !== 'string') {
+    throw new TypeError('glob pattern string required');
+  }
+
+  if (!options) options = {};
+
+  // shortcut: comments match nothing.
+  if (!options.nocomment && pattern.charAt(0) === '#') {
+    return false;
+  }
+
+  // "" only matches ""
+  if (pattern.trim() === '') return p === '';
+
+  return new Minimatch(pattern, options).match(p);
+}
+
+function Minimatch(pattern, options) {
+  if (!(this instanceof Minimatch)) {
+    return new Minimatch(pattern, options);
+  }
+
+  if (typeof pattern !== 'string') {
+    throw new TypeError('glob pattern string required');
+  }
+
+  if (!options) options = {};
+  pattern = pattern.trim();
+
+  // windows support: need to use /, not \
+  if (path.sep !== '/') {
+    pattern = pattern.split(path.sep).join('/');
+  }
+
+  this.options = options;
+  this.set = [];
+  this.pattern = pattern;
+  this.regexp = null;
+  this.negate = false;
+  this.comment = false;
+  this.empty = false;
+
+  // make the set of regexps etc.
+  this.make();
+}
+
+Minimatch.prototype.debug = function () {};
+
+Minimatch.prototype.make = make;
+function make() {
+  // don't do it more than once.
+  if (this._made) return;
+
+  var pattern = this.pattern;
+  var options = this.options;
+
+  // empty patterns and comments match nothing.
+  if (!options.nocomment && pattern.charAt(0) === '#') {
+    this.comment = true;
+    return;
+  }
+  if (!pattern) {
+    this.empty = true;
+    return;
+  }
+
+  // step 1: figure out negation, etc.
+  this.parseNegate();
+
+  // step 2: expand braces
+  var set = this.globSet = this.braceExpand();
+
+  if (options.debug) this.debug = console.error;
+
+  this.debug(this.pattern, set);
+
+  // step 3: now we have a set, so turn each one into a series of path-portion
+  // matching patterns.
+  // These will be regexps, except in the case of "**", which is
+  // set to the GLOBSTAR object for globstar behavior,
+  // and will not contain any / characters
+  set = this.globParts = set.map(function (s) {
+    return s.split(slashSplit);
+  });
+
+  this.debug(this.pattern, set);
+
+  // glob --> regexps
+  set = set.map(function (s, si, set) {
+    return s.map(this.parse, this);
+  }, this);
+
+  this.debug(this.pattern, set);
+
+  // filter out everything that didn't compile properly.
+  set = set.filter(function (s) {
+    return s.indexOf(false) === -1;
+  });
+
+  this.debug(this.pattern, set);
+
+  this.set = set;
+}
+
+Minimatch.prototype.parseNegate = parseNegate;
+function parseNegate() {
+  var pattern = this.pattern;
+  var negate = false;
+  var options = this.options;
+  var negateOffset = 0;
+
+  if (options.nonegate) return;
+
+  for (var i = 0, l = pattern.length; i < l && pattern.charAt(i) === '!'; i++) {
+    negate = !negate;
+    negateOffset++;
+  }
+
+  if (negateOffset) this.pattern = pattern.substr(negateOffset);
+  this.negate = negate;
+}
+
+// Brace expansion:
+// a{b,c}d -> abd acd
+// a{b,}c -> abc ac
+// a{0..3}d -> a0d a1d a2d a3d
+// a{b,c{d,e}f}g -> abg acdfg acefg
+// a{b,c}d{e,f}g -> abdeg acdeg abdeg abdfg
+//
+// Invalid sets are not expanded.
+// a{2..}b -> a{2..}b
+// a{b}c -> a{b}c
+minimatch.braceExpand = function (pattern, options) {
+  return braceExpand(pattern, options);
+};
+
+Minimatch.prototype.braceExpand = braceExpand;
+
+function braceExpand(pattern, options) {
+  if (!options) {
+    if (this instanceof Minimatch) {
+      options = this.options;
+    } else {
+      options = {};
+    }
+  }
+
+  pattern = typeof pattern === 'undefined' ? this.pattern : pattern;
+
+  if (typeof pattern === 'undefined') {
+    throw new Error('undefined pattern');
+  }
+
+  if (options.nobrace || !pattern.match(/\{.*\}/)) {
+    // shortcut. no need to expand.
+    return [pattern];
+  }
+
+  return expand(pattern);
+}
+
+// parse a component of the expanded set.
+// At this point, no pattern may contain "/" in it
+// so we're going to return a 2d array, where each entry is the full
+// pattern, split on '/', and then turned into a regular expression.
+// A regexp is made at the end which joins each array with an
+// escaped /, and another full one which joins each regexp with |.
+//
+// Following the lead of Bash 4.1, note that "**" only has special meaning
+// when it is the *only* thing in a path portion.  Otherwise, any series
+// of * is equivalent to a single *.  Globstar behavior is enabled by
+// default, and can be disabled by setting options.noglobstar.
+Minimatch.prototype.parse = parse;
+var SUBPARSE = {};
+function parse(pattern, isSub) {
+  var options = this.options;
+
+  // shortcuts
+  if (!options.noglobstar && pattern === '**') return GLOBSTAR;
+  if (pattern === '') return '';
+
+  var re = '';
+  var hasMagic = !!options.nocase;
+  var escaping = false;
+  // ? => one single character
+  var patternListStack = [];
+  var negativeLists = [];
+  var plType;
+  var stateChar;
+  var inClass = false;
+  var reClassStart = -1;
+  var classStart = -1;
+  // . and .. never match anything that doesn't start with .,
+  // even when options.dot is set.
+  var patternStart = pattern.charAt(0) === '.' ? '' // anything
+  // not (start or / followed by . or .. followed by / or end)
+  : options.dot ? '(?!(?:^|\\\/)\\.{1,2}(?:$|\\\/))' : '(?!\\.)';
+  var self = this;
+
+  function clearStateChar() {
+    if (stateChar) {
+      // we had some state-tracking character
+      // that wasn't consumed by this pass.
+      switch (stateChar) {
+        case '*':
+          re += star;
+          hasMagic = true;
+          break;
+        case '?':
+          re += qmark;
+          hasMagic = true;
+          break;
+        default:
+          re += '\\' + stateChar;
+          break;
+      }
+      self.debug('clearStateChar %j %j', stateChar, re);
+      stateChar = false;
+    }
+  }
+
+  for (var i = 0, len = pattern.length, c; i < len && (c = pattern.charAt(i)); i++) {
+    this.debug('%s\t%s %s %j', pattern, i, re, c);
+
+    // skip over any that are escaped.
+    if (escaping && reSpecials[c]) {
+      re += '\\' + c;
+      escaping = false;
+      continue;
+    }
+
+    switch (c) {
+      case '/':
+        // completely not allowed, even escaped.
+        // Should already be path-split by now.
+        return false;
+
+      case '\\':
+        clearStateChar();
+        escaping = true;
+        continue;
+
+      // the various stateChar values
+      // for the "extglob" stuff.
+      case '?':
+      case '*':
+      case '+':
+      case '@':
+      case '!':
+        this.debug('%s\t%s %s %j <-- stateChar', pattern, i, re, c);
+
+        // all of those are literals inside a class, except that
+        // the glob [!a] means [^a] in regexp
+        if (inClass) {
+          this.debug('  in class');
+          if (c === '!' && i === classStart + 1) c = '^';
+          re += c;
+          continue;
+        }
+
+        // if we already have a stateChar, then it means
+        // that there was something like ** or +? in there.
+        // Handle the stateChar, then proceed with this one.
+        self.debug('call clearStateChar %j', stateChar);
+        clearStateChar();
+        stateChar = c;
+        // if extglob is disabled, then +(asdf|foo) isn't a thing.
+        // just clear the statechar *now*, rather than even diving into
+        // the patternList stuff.
+        if (options.noext) clearStateChar();
+        continue;
+
+      case '(':
+        if (inClass) {
+          re += '(';
+          continue;
+        }
+
+        if (!stateChar) {
+          re += '\\(';
+          continue;
+        }
+
+        plType = stateChar;
+        patternListStack.push({
+          type: plType,
+          start: i - 1,
+          reStart: re.length
+        });
+        // negation is (?:(?!js)[^/]*)
+        re += stateChar === '!' ? '(?:(?!(?:' : '(?:';
+        this.debug('plType %j %j', stateChar, re);
+        stateChar = false;
+        continue;
+
+      case ')':
+        if (inClass || !patternListStack.length) {
+          re += '\\)';
+          continue;
+        }
+
+        clearStateChar();
+        hasMagic = true;
+        re += ')';
+        var pl = patternListStack.pop();
+        plType = pl.type;
+        // negation is (?:(?!js)[^/]*)
+        // The others are (?:<pattern>)<type>
+        switch (plType) {
+          case '!':
+            negativeLists.push(pl);
+            re += ')[^/]*?)';
+            pl.reEnd = re.length;
+            break;
+          case '?':
+          case '+':
+          case '*':
+            re += plType;
+            break;
+          case '@':
+            break; // the default anyway
+        }
+        continue;
+
+      case '|':
+        if (inClass || !patternListStack.length || escaping) {
+          re += '\\|';
+          escaping = false;
+          continue;
+        }
+
+        clearStateChar();
+        re += '|';
+        continue;
+
+      // these are mostly the same in regexp and glob
+      case '[':
+        // swallow any state-tracking char before the [
+        clearStateChar();
+
+        if (inClass) {
+          re += '\\' + c;
+          continue;
+        }
+
+        inClass = true;
+        classStart = i;
+        reClassStart = re.length;
+        re += c;
+        continue;
+
+      case ']':
+        //  a right bracket shall lose its special
+        //  meaning and represent itself in
+        //  a bracket expression if it occurs
+        //  first in the list.  -- POSIX.2 2.8.3.2
+        if (i === classStart + 1 || !inClass) {
+          re += '\\' + c;
+          escaping = false;
+          continue;
+        }
+
+        // handle the case where we left a class open.
+        // "[z-a]" is valid, equivalent to "\[z-a\]"
+        if (inClass) {
+          // split where the last [ was, make sure we don't have
+          // an invalid re. if so, re-walk the contents of the
+          // would-be class to re-translate any characters that
+          // were passed through as-is
+          // TODO: It would probably be faster to determine this
+          // without a try/catch and a new RegExp, but it's tricky
+          // to do safely.  For now, this is safe and works.
+          var cs = pattern.substring(classStart + 1, i);
+          try {
+            RegExp('[' + cs + ']');
+          } catch (er) {
+            // not a valid class!
+            var sp = this.parse(cs, SUBPARSE);
+            re = re.substr(0, reClassStart) + '\\[' + sp[0] + '\\]';
+            hasMagic = hasMagic || sp[1];
+            inClass = false;
+            continue;
+          }
+        }
+
+        // finish up the class.
+        hasMagic = true;
+        inClass = false;
+        re += c;
+        continue;
+
+      default:
+        // swallow any state char that wasn't consumed
+        clearStateChar();
+
+        if (escaping) {
+          // no need
+          escaping = false;
+        } else if (reSpecials[c] && !(c === '^' && inClass)) {
+          re += '\\';
+        }
+
+        re += c;
+
+    } // switch
+  } // for
+
+  // handle the case where we left a class open.
+  // "[abc" is valid, equivalent to "\[abc"
+  if (inClass) {
+    // split where the last [ was, and escape it
+    // this is a huge pita.  We now have to re-walk
+    // the contents of the would-be class to re-translate
+    // any characters that were passed through as-is
+    cs = pattern.substr(classStart + 1);
+    sp = this.parse(cs, SUBPARSE);
+    re = re.substr(0, reClassStart) + '\\[' + sp[0];
+    hasMagic = hasMagic || sp[1];
+  }
+
+  // handle the case where we had a +( thing at the *end*
+  // of the pattern.
+  // each pattern list stack adds 3 chars, and we need to go through
+  // and escape any | chars that were passed through as-is for the regexp.
+  // Go through and escape them, taking care not to double-escape any
+  // | chars that were already escaped.
+  for (pl = patternListStack.pop(); pl; pl = patternListStack.pop()) {
+    var tail = re.slice(pl.reStart + 3);
+    // maybe some even number of \, then maybe 1 \, followed by a |
+    tail = tail.replace(/((?:\\{2})*)(\\?)\|/g, function (_, $1, $2) {
+      if (!$2) {
+        // the | isn't already escaped, so escape it.
+        $2 = '\\';
+      }
+
+      // need to escape all those slashes *again*, without escaping the
+      // one that we need for escaping the | character.  As it works out,
+      // escaping an even number of slashes can be done by simply repeating
+      // it exactly after itself.  That's why this trick works.
+      //
+      // I am sorry that you have to see this.
+      return $1 + $1 + $2 + '|';
+    });
+
+    this.debug('tail=%j\n   %s', tail, tail);
+    var t = pl.type === '*' ? star : pl.type === '?' ? qmark : '\\' + pl.type;
+
+    hasMagic = true;
+    re = re.slice(0, pl.reStart) + t + '\\(' + tail;
+  }
+
+  // handle trailing things that only matter at the very end.
+  clearStateChar();
+  if (escaping) {
+    // trailing \\
+    re += '\\\\';
+  }
+
+  // only need to apply the nodot start if the re starts with
+  // something that could conceivably capture a dot
+  var addPatternStart = false;
+  switch (re.charAt(0)) {
+    case '.':
+    case '[':
+    case '(':
+      addPatternStart = true;
+  }
+
+  // Hack to work around lack of negative lookbehind in JS
+  // A pattern like: *.!(x).!(y|z) needs to ensure that a name
+  // like 'a.xyz.yz' doesn't match.  So, the first negative
+  // lookahead, has to look ALL the way ahead, to the end of
+  // the pattern.
+  for (var n = negativeLists.length - 1; n > -1; n--) {
+    var nl = negativeLists[n];
+
+    var nlBefore = re.slice(0, nl.reStart);
+    var nlFirst = re.slice(nl.reStart, nl.reEnd - 8);
+    var nlLast = re.slice(nl.reEnd - 8, nl.reEnd);
+    var nlAfter = re.slice(nl.reEnd);
+
+    nlLast += nlAfter;
+
+    // Handle nested stuff like *(*.js|!(*.json)), where open parens
+    // mean that we should *not* include the ) in the bit that is considered
+    // "after" the negated section.
+    var openParensBefore = nlBefore.split('(').length - 1;
+    var cleanAfter = nlAfter;
+    for (i = 0; i < openParensBefore; i++) {
+      cleanAfter = cleanAfter.replace(/\)[+*?]?/, '');
+    }
+    nlAfter = cleanAfter;
+
+    var dollar = '';
+    if (nlAfter === '' && isSub !== SUBPARSE) {
+      dollar = '$';
+    }
+    var newRe = nlBefore + nlFirst + nlAfter + dollar + nlLast;
+    re = newRe;
+  }
+
+  // if the re is not "" at this point, then we need to make sure
+  // it doesn't match against an empty path part.
+  // Otherwise a/* will match a/, which it should not.
+  if (re !== '' && hasMagic) {
+    re = '(?=.)' + re;
+  }
+
+  if (addPatternStart) {
+    re = patternStart + re;
+  }
+
+  // parsing just a piece of a larger pattern.
+  if (isSub === SUBPARSE) {
+    return [re, hasMagic];
+  }
+
+  // skip the regexp for non-magical patterns
+  // unescape anything in it, though, so that it'll be
+  // an exact match against a file etc.
+  if (!hasMagic) {
+    return globUnescape(pattern);
+  }
+
+  var flags = options.nocase ? 'i' : '';
+  var regExp = new RegExp('^' + re + '$', flags);
+
+  regExp._glob = pattern;
+  regExp._src = re;
+
+  return regExp;
+}
+
+minimatch.makeRe = function (pattern, options) {
+  return new Minimatch(pattern, options || {}).makeRe();
+};
+
+Minimatch.prototype.makeRe = makeRe;
+function makeRe() {
+  if (this.regexp || this.regexp === false) return this.regexp;
+
+  // at this point, this.set is a 2d array of partial
+  // pattern strings, or "**".
+  //
+  // It's better to use .match().  This function shouldn't
+  // be used, really, but it's pretty convenient sometimes,
+  // when you just want to work with a regex.
+  var set = this.set;
+
+  if (!set.length) {
+    this.regexp = false;
+    return this.regexp;
+  }
+  var options = this.options;
+
+  var twoStar = options.noglobstar ? star : options.dot ? twoStarDot : twoStarNoDot;
+  var flags = options.nocase ? 'i' : '';
+
+  var re = set.map(function (pattern) {
+    return pattern.map(function (p) {
+      return p === GLOBSTAR ? twoStar : typeof p === 'string' ? regExpEscape(p) : p._src;
+    }).join('\\\/');
+  }).join('|');
+
+  // must match entire pattern
+  // ending in a * or ** will make it less strict.
+  re = '^(?:' + re + ')$';
+
+  // can match anything, as long as it's not this.
+  if (this.negate) re = '^(?!' + re + ').*$';
+
+  try {
+    this.regexp = new RegExp(re, flags);
+  } catch (ex) {
+    this.regexp = false;
+  }
+  return this.regexp;
+}
+
+minimatch.match = function (list, pattern, options) {
+  options = options || {};
+  var mm = new Minimatch(pattern, options);
+  list = list.filter(function (f) {
+    return mm.match(f);
+  });
+  if (mm.options.nonull && !list.length) {
+    list.push(pattern);
+  }
+  return list;
+};
+
+Minimatch.prototype.match = match;
+function match(f, partial) {
+  this.debug('match', f, this.pattern);
+  // short-circuit in the case of busted things.
+  // comments, etc.
+  if (this.comment) return false;
+  if (this.empty) return f === '';
+
+  if (f === '/' && partial) return true;
+
+  var options = this.options;
+
+  // windows: need to use /, not \
+  if (path.sep !== '/') {
+    f = f.split(path.sep).join('/');
+  }
+
+  // treat the test path as a set of pathparts.
+  f = f.split(slashSplit);
+  this.debug(this.pattern, 'split', f);
+
+  // just ONE of the pattern sets in this.set needs to match
+  // in order for it to be valid.  If negating, then just one
+  // match means that we have failed.
+  // Either way, return on the first hit.
+
+  var set = this.set;
+  this.debug(this.pattern, 'set', set);
+
+  // Find the basename of the path by looking for the last non-empty segment
+  var filename;
+  var i;
+  for (i = f.length - 1; i >= 0; i--) {
+    filename = f[i];
+    if (filename) break;
+  }
+
+  for (i = 0; i < set.length; i++) {
+    var pattern = set[i];
+    var file = f;
+    if (options.matchBase && pattern.length === 1) {
+      file = [filename];
+    }
+    var hit = this.matchOne(file, pattern, partial);
+    if (hit) {
+      if (options.flipNegate) return true;
+      return !this.negate;
+    }
+  }
+
+  // didn't get any hits.  this is success if it's a negative
+  // pattern, failure otherwise.
+  if (options.flipNegate) return false;
+  return this.negate;
+}
+
+// set partial to true to test if, for example,
+// "/a/b" matches the start of "/*/b/*/d"
+// Partial means, if you run out of file before you run
+// out of pattern, then that's fine, as long as all
+// the parts match.
+Minimatch.prototype.matchOne = function (file, pattern, partial) {
+  var options = this.options;
+
+  this.debug('matchOne', { 'this': this, file: file, pattern: pattern });
+
+  this.debug('matchOne', file.length, pattern.length);
+
+  for (var fi = 0, pi = 0, fl = file.length, pl = pattern.length; fi < fl && pi < pl; fi++, pi++) {
+    this.debug('matchOne loop');
+    var p = pattern[pi];
+    var f = file[fi];
+
+    this.debug(pattern, p, f);
+
+    // should be impossible.
+    // some invalid regexp stuff in the set.
+    if (p === false) return false;
+
+    if (p === GLOBSTAR) {
+      this.debug('GLOBSTAR', [pattern, p, f]);
+
+      // "**"
+      // a/**/b/**/c would match the following:
+      // a/b/x/y/z/c
+      // a/x/y/z/b/c
+      // a/b/x/b/x/c
+      // a/b/c
+      // To do this, take the rest of the pattern after
+      // the **, and see if it would match the file remainder.
+      // If so, return success.
+      // If not, the ** "swallows" a segment, and try again.
+      // This is recursively awful.
+      //
+      // a/**/b/**/c matching a/b/x/y/z/c
+      // - a matches a
+      // - doublestar
+      //   - matchOne(b/x/y/z/c, b/**/c)
+      //     - b matches b
+      //     - doublestar
+      //       - matchOne(x/y/z/c, c) -> no
+      //       - matchOne(y/z/c, c) -> no
+      //       - matchOne(z/c, c) -> no
+      //       - matchOne(c, c) yes, hit
+      var fr = fi;
+      var pr = pi + 1;
+      if (pr === pl) {
+        this.debug('** at the end');
+        // a ** at the end will just swallow the rest.
+        // We have found a match.
+        // however, it will not swallow /.x, unless
+        // options.dot is set.
+        // . and .. are *never* matched by **, for explosively
+        // exponential reasons.
+        for (; fi < fl; fi++) {
+          if (file[fi] === '.' || file[fi] === '..' || !options.dot && file[fi].charAt(0) === '.') return false;
+        }
+        return true;
+      }
+
+      // ok, let's see if we can swallow whatever we can.
+      while (fr < fl) {
+        var swallowee = file[fr];
+
+        this.debug('\nglobstar while', file, fr, pattern, pr, swallowee);
+
+        // XXX remove this slice.  Just pass the start index.
+        if (this.matchOne(file.slice(fr), pattern.slice(pr), partial)) {
+          this.debug('globstar found match!', fr, fl, swallowee);
+          // found a match.
+          return true;
+        } else {
+          // can't swallow "." or ".." ever.
+          // can only swallow ".foo" when explicitly asked.
+          if (swallowee === '.' || swallowee === '..' || !options.dot && swallowee.charAt(0) === '.') {
+            this.debug('dot detected!', file, fr, pattern, pr);
+            break;
+          }
+
+          // ** swallows a segment, and continue.
+          this.debug('globstar swallow a segment, and continue');
+          fr++;
+        }
+      }
+
+      // no match was found.
+      // However, in partial mode, we can't say this is necessarily over.
+      // If there's more *pattern* left, then
+      if (partial) {
+        // ran out of file
+        this.debug('\n>>> no match, partial?', file, fr, pattern, pr);
+        if (fr === fl) return true;
+      }
+      return false;
+    }
+
+    // something other than **
+    // non-magic patterns just have to match exactly
+    // patterns with magic have been turned into regexps.
+    var hit;
+    if (typeof p === 'string') {
+      if (options.nocase) {
+        hit = f.toLowerCase() === p.toLowerCase();
+      } else {
+        hit = f === p;
+      }
+      this.debug('string match', p, f, hit);
+    } else {
+      hit = f.match(p);
+      this.debug('pattern match', p, f, hit);
+    }
+
+    if (!hit) return false;
+  }
+
+  // Note: ending in / means that we'll get a final ""
+  // at the end of the pattern.  This can only match a
+  // corresponding "" at the end of the file.
+  // If the file ends in /, then it can only match a
+  // a pattern that ends in /, unless the pattern just
+  // doesn't have any more for it. But, a/b/ should *not*
+  // match "a/b/*", even though "" matches against the
+  // [^/]*? pattern, except in partial mode, where it might
+  // simply not be reached yet.
+  // However, a/b/ should still satisfy a/*
+
+  // now either we fell off the end of the pattern, or we're done.
+  if (fi === fl && pi === pl) {
+    // ran out of pattern and filename at the same time.
+    // an exact hit!
+    return true;
+  } else if (fi === fl) {
+    // ran out of file, but still had pattern left.
+    // this is ok if we're doing the match as part of
+    // a glob fs traversal.
+    return partial;
+  } else if (pi === pl) {
+    // ran out of pattern, still have file left.
+    // this is only acceptable if we're on the very last
+    // empty segment of a file with a trailing slash.
+    // a/* should match a/b/
+    var emptyFileEnd = fi === fl - 1 && file[fi] === '';
+    return emptyFileEnd;
+  }
+
+  // should be unreachable.
+  throw new Error('wtf?');
+};
+
+// replace stuff like \* with *
+function globUnescape(s) {
+  return s.replace(/\\(.)/g, '$1');
+}
+
+function regExpEscape(s) {
+  return s.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+}
+
+},{"brace-expansion":26,"chrome-path":36}],77:[function(require,module,exports){
+(function (process){
+'use strict';
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
+var path = require('chrome-path');
+var fs = require('chrome-fs');
+var _0777 = parseInt('0777', 8);
+
+module.exports = mkdirP.mkdirp = mkdirP.mkdirP = mkdirP;
+
+function mkdirP(p, opts, f, made) {
+    if (typeof opts === 'function') {
+        f = opts;
+        opts = {};
+    } else if (!opts || (typeof opts === 'undefined' ? 'undefined' : _typeof(opts)) !== 'object') {
+        opts = { mode: opts };
+    }
+
+    var mode = opts.mode;
+    var xfs = opts.fs || fs;
+
+    if (mode === undefined) {
+        mode = _0777 & ~process.umask();
+    }
+    if (!made) made = null;
+
+    var cb = f || function () {};
+    p = path.resolve(p);
+
+    xfs.mkdir(p, mode, function (er) {
+        if (!er) {
+            made = made || p;
+            return cb(null, made);
+        }
+        switch (er.code) {
+            case 'ENOENT':
+                mkdirP(path.dirname(p), opts, function (er, made) {
+                    if (er) cb(er, made);else mkdirP(p, opts, cb, made);
+                });
+                break;
+
+            // In the case of any other error, just see if there's a dir
+            // there already.  If so, then hooray!  If not, then something
+            // is borked.
+            default:
+                xfs.stat(p, function (er2, stat) {
+                    // if the stat fails, then that's super weird.
+                    // let the original error be the failure reason.
+                    if (er2 || !stat.isDirectory()) cb(er, made);else cb(null, made);
+                });
+                break;
+        }
+    });
+}
+
+mkdirP.sync = function sync(p, opts, made) {
+    if (!opts || (typeof opts === 'undefined' ? 'undefined' : _typeof(opts)) !== 'object') {
+        opts = { mode: opts };
+    }
+
+    var mode = opts.mode;
+    var xfs = opts.fs || fs;
+
+    if (mode === undefined) {
+        mode = _0777 & ~process.umask();
+    }
+    if (!made) made = null;
+
+    p = path.resolve(p);
+
+    try {
+        xfs.mkdirSync(p, mode);
+        made = made || p;
+    } catch (err0) {
+        switch (err0.code) {
+            case 'ENOENT':
+                made = sync(path.dirname(p), opts, made);
+                sync(p, opts, made);
+                break;
+
+            // In the case of any other error, just see if there's a dir
+            // there already.  If so, then hooray!  If not, then something
+            // is borked.
+            default:
+                var stat;
+                try {
+                    stat = xfs.statSync(p);
+                } catch (err1) {
+                    throw err0;
+                }
+                if (!stat.isDirectory()) throw err0;
+                break;
+        }
+    }
+
+    return made;
+};
+
+}).call(this,require('_process'))
+},{"_process":102,"chrome-fs":34,"chrome-path":36}],78:[function(require,module,exports){
 'use strict';
 
 /**
@@ -14892,7 +16552,7 @@ function plural(ms, n, name) {
   return Math.ceil(ms / n) + ' ' + name + 's';
 }
 
-},{}],71:[function(require,module,exports){
+},{}],79:[function(require,module,exports){
 'use strict';
 
 module.exports = MultiStream;
@@ -15019,14 +16679,14 @@ function toStreams2(s) {
   return wrap;
 }
 
-},{"inherits":54,"stream":122}],72:[function(require,module,exports){
+},{"inherits":61,"stream":138}],80:[function(require,module,exports){
 'use strict';
 
 module.exports = Number.isNaN || function (x) {
 	return x !== x;
 };
 
-},{}],73:[function(require,module,exports){
+},{}],81:[function(require,module,exports){
 'use strict';
 
 var wrappy = require('wrappy');
@@ -15051,7 +16711,7 @@ function once(fn) {
   return f;
 }
 
-},{"wrappy":163}],74:[function(require,module,exports){
+},{"wrappy":180}],82:[function(require,module,exports){
 'use strict';
 
 exports.endianness = function () {
@@ -15113,7 +16773,7 @@ exports.tmpdir = exports.tmpDir = function () {
 
 exports.EOL = '\n';
 
-},{}],75:[function(require,module,exports){
+},{}],83:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
@@ -15218,7 +16878,7 @@ exports.setTyped = function (on) {
 
 exports.setTyped(TYPED_OK);
 
-},{}],76:[function(require,module,exports){
+},{}],84:[function(require,module,exports){
 'use strict';
 
 // Note: adler32 takes 12% for level 0 and 2% for level 6.
@@ -15251,7 +16911,7 @@ function adler32(adler, buf, len, pos) {
 
 module.exports = adler32;
 
-},{}],77:[function(require,module,exports){
+},{}],85:[function(require,module,exports){
 "use strict";
 
 module.exports = {
@@ -15301,7 +16961,7 @@ module.exports = {
   //Z_NULL:                 null // Use -1 or null inline, depending on var type
 };
 
-},{}],78:[function(require,module,exports){
+},{}],86:[function(require,module,exports){
 'use strict';
 
 // Note: we can't get significant speed boost here.
@@ -15343,7 +17003,7 @@ function crc32(crc, buf, len, pos) {
 
 module.exports = crc32;
 
-},{}],79:[function(require,module,exports){
+},{}],87:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils/common');
@@ -17058,7 +18718,7 @@ exports.deflatePrime = deflatePrime;
 exports.deflateTune = deflateTune;
 */
 
-},{"../utils/common":75,"./adler32":76,"./crc32":78,"./messages":83,"./trees":84}],80:[function(require,module,exports){
+},{"../utils/common":83,"./adler32":84,"./crc32":86,"./messages":91,"./trees":92}],88:[function(require,module,exports){
 'use strict';
 
 // See state defs from inflate.js
@@ -17390,7 +19050,7 @@ module.exports = function inflate_fast(strm, start) {
   return;
 };
 
-},{}],81:[function(require,module,exports){
+},{}],89:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils/common');
@@ -18979,7 +20639,7 @@ exports.inflateSyncPoint = inflateSyncPoint;
 exports.inflateUndermine = inflateUndermine;
 */
 
-},{"../utils/common":75,"./adler32":76,"./crc32":78,"./inffast":80,"./inftrees":82}],82:[function(require,module,exports){
+},{"../utils/common":83,"./adler32":84,"./crc32":86,"./inffast":88,"./inftrees":90}],90:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils/common');
@@ -19293,7 +20953,7 @@ module.exports = function inflate_table(type, lens, lens_index, codes, table, ta
   return 0;
 };
 
-},{"../utils/common":75}],83:[function(require,module,exports){
+},{"../utils/common":83}],91:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -19308,7 +20968,7 @@ module.exports = {
   '-6': 'incompatible version' /* Z_VERSION_ERROR (-6) */
 };
 
-},{}],84:[function(require,module,exports){
+},{}],92:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils/common');
@@ -20484,7 +22144,7 @@ exports._tr_flush_block = _tr_flush_block;
 exports._tr_tally = _tr_tally;
 exports._tr_align = _tr_align;
 
-},{"../utils/common":75}],85:[function(require,module,exports){
+},{"../utils/common":83}],93:[function(require,module,exports){
 'use strict';
 
 function ZStream() {
@@ -20514,7 +22174,7 @@ function ZStream() {
 
 module.exports = ZStream;
 
-},{}],86:[function(require,module,exports){
+},{}],94:[function(require,module,exports){
 (function (Buffer){
 'use strict';
 
@@ -20657,7 +22317,7 @@ function ensure(bool, fieldName) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"bencode":6,"buffer":154,"chrome-path":34,"simple-sha1":118,"uniq":139}],87:[function(require,module,exports){
+},{"bencode":7,"buffer":171,"chrome-path":36,"simple-sha1":134,"uniq":156}],95:[function(require,module,exports){
 (function (Buffer,process){
 'use strict';
 
@@ -20767,7 +22427,31 @@ function isBlob(obj) {
 }
 
 }).call(this,{"isBuffer":require("../is-buffer/index.js")},require('_process'))
-},{"../is-buffer/index.js":58,"_process":91,"blob-to-buffer":22,"chrome-fs":32,"magnet-uri":65,"parse-torrent-file":86,"simple-get/index":116}],88:[function(require,module,exports){
+},{"../is-buffer/index.js":65,"_process":102,"blob-to-buffer":23,"chrome-fs":34,"magnet-uri":72,"parse-torrent-file":94,"simple-get/index":132}],96:[function(require,module,exports){
+(function (process){
+'use strict';
+
+function posix(path) {
+	return path.charAt(0) === '/';
+};
+
+function win32(path) {
+	// https://github.com/joyent/node/blob/b3fcc245fb25539909ef1d5eaa01dbf92e168633/lib/path.js#L56
+	var splitDeviceRe = /^([a-zA-Z]:|[\\\/]{2}[^\\\/]+[\\\/]+[^\\\/]+)?([\\\/])?([\s\S]*?)$/;
+	var result = splitDeviceRe.exec(path);
+	var device = result[1] || '';
+	var isUnc = !!device && device.charAt(1) !== ':';
+
+	// UNC paths are always absolute
+	return !!result[2] || isUnc;
+};
+
+module.exports = process.platform === 'win32' ? win32 : posix;
+module.exports.posix = posix;
+module.exports.win32 = win32;
+
+}).call(this,require('_process'))
+},{"_process":102}],97:[function(require,module,exports){
 'use strict';
 
 var closest = require('closest-to');
@@ -20782,7 +22466,312 @@ module.exports = function (size) {
   return closest(size / Math.pow(2, 10), sizes);
 };
 
-},{"closest-to":37}],89:[function(require,module,exports){
+},{"closest-to":39}],98:[function(require,module,exports){
+(function (global){
+'use strict';
+
+module.exports = global.Promise || require('pinkie');
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"pinkie":99}],99:[function(require,module,exports){
+(function (global){
+'use strict';
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
+var PENDING = 'pending';
+var SETTLED = 'settled';
+var FULFILLED = 'fulfilled';
+var REJECTED = 'rejected';
+var NOOP = function NOOP() {};
+var isNode = global.process !== 'undefined' && typeof global.process.emit === 'function';
+
+var asyncSetTimer = typeof setImmediate === 'undefined' ? setTimeout : setImmediate;
+var asyncQueue = [];
+var asyncTimer;
+
+function asyncFlush() {
+	// run promise callbacks
+	for (var i = 0; i < asyncQueue.length; i++) {
+		asyncQueue[i][0](asyncQueue[i][1]);
+	}
+
+	// reset async asyncQueue
+	asyncQueue = [];
+	asyncTimer = false;
+}
+
+function asyncCall(callback, arg) {
+	asyncQueue.push([callback, arg]);
+
+	if (!asyncTimer) {
+		asyncTimer = true;
+		asyncSetTimer(asyncFlush, 0);
+	}
+}
+
+function invokeResolver(resolver, promise) {
+	function resolvePromise(value) {
+		resolve(promise, value);
+	}
+
+	function rejectPromise(reason) {
+		reject(promise, reason);
+	}
+
+	try {
+		resolver(resolvePromise, rejectPromise);
+	} catch (e) {
+		rejectPromise(e);
+	}
+}
+
+function invokeCallback(subscriber) {
+	var owner = subscriber.owner;
+	var settled = owner._state;
+	var value = owner._data;
+	var callback = subscriber[settled];
+	var promise = subscriber.then;
+
+	if (typeof callback === 'function') {
+		settled = FULFILLED;
+		try {
+			value = callback(value);
+		} catch (e) {
+			reject(promise, e);
+		}
+	}
+
+	if (!handleThenable(promise, value)) {
+		if (settled === FULFILLED) {
+			resolve(promise, value);
+		}
+
+		if (settled === REJECTED) {
+			reject(promise, value);
+		}
+	}
+}
+
+function handleThenable(promise, value) {
+	var resolved;
+
+	try {
+		if (promise === value) {
+			throw new TypeError('A promises callback cannot return that same promise.');
+		}
+
+		if (value && (typeof value === 'function' || (typeof value === 'undefined' ? 'undefined' : _typeof(value)) === 'object')) {
+			// then should be retrieved only once
+			var then = value.then;
+
+			if (typeof then === 'function') {
+				then.call(value, function (val) {
+					if (!resolved) {
+						resolved = true;
+
+						if (value === val) {
+							fulfill(promise, val);
+						} else {
+							resolve(promise, val);
+						}
+					}
+				}, function (reason) {
+					if (!resolved) {
+						resolved = true;
+
+						reject(promise, reason);
+					}
+				});
+
+				return true;
+			}
+		}
+	} catch (e) {
+		if (!resolved) {
+			reject(promise, e);
+		}
+
+		return true;
+	}
+
+	return false;
+}
+
+function resolve(promise, value) {
+	if (promise === value || !handleThenable(promise, value)) {
+		fulfill(promise, value);
+	}
+}
+
+function fulfill(promise, value) {
+	if (promise._state === PENDING) {
+		promise._state = SETTLED;
+		promise._data = value;
+
+		asyncCall(publishFulfillment, promise);
+	}
+}
+
+function reject(promise, reason) {
+	if (promise._state === PENDING) {
+		promise._state = SETTLED;
+		promise._data = reason;
+
+		asyncCall(publishRejection, promise);
+	}
+}
+
+function publish(promise) {
+	promise._then = promise._then.forEach(invokeCallback);
+}
+
+function publishFulfillment(promise) {
+	promise._state = FULFILLED;
+	publish(promise);
+}
+
+function publishRejection(promise) {
+	promise._state = REJECTED;
+	publish(promise);
+	if (!promise._handled && isNode) {
+		global.process.emit('unhandledRejection', promise._data, promise);
+	}
+}
+
+function notifyRejectionHandled(promise) {
+	global.process.emit('rejectionHandled', promise);
+}
+
+/**
+ * @class
+ */
+function Promise(resolver) {
+	if (typeof resolver !== 'function') {
+		throw new TypeError('Promise resolver ' + resolver + ' is not a function');
+	}
+
+	if (this instanceof Promise === false) {
+		throw new TypeError('Failed to construct \'Promise\': Please use the \'new\' operator, this object constructor cannot be called as a function.');
+	}
+
+	this._then = [];
+
+	invokeResolver(resolver, this);
+}
+
+Promise.prototype = {
+	constructor: Promise,
+
+	_state: PENDING,
+	_then: null,
+	_data: undefined,
+	_handled: false,
+
+	then: function then(onFulfillment, onRejection) {
+		var subscriber = {
+			owner: this,
+			then: new this.constructor(NOOP),
+			fulfilled: onFulfillment,
+			rejected: onRejection
+		};
+
+		if ((onRejection || onFulfillment) && !this._handled) {
+			this._handled = true;
+			if (this._state === REJECTED && isNode) {
+				asyncCall(notifyRejectionHandled, this);
+			}
+		}
+
+		if (this._state === FULFILLED || this._state === REJECTED) {
+			// already resolved, call callback async
+			asyncCall(invokeCallback, subscriber);
+		} else {
+			// subscribe
+			this._then.push(subscriber);
+		}
+
+		return subscriber.then;
+	},
+
+	catch: function _catch(onRejection) {
+		return this.then(null, onRejection);
+	}
+};
+
+Promise.all = function (promises) {
+	if (!Array.isArray(promises)) {
+		throw new TypeError('You must pass an array to Promise.all().');
+	}
+
+	return new Promise(function (resolve, reject) {
+		var results = [];
+		var remaining = 0;
+
+		function resolver(index) {
+			remaining++;
+			return function (value) {
+				results[index] = value;
+				if (! --remaining) {
+					resolve(results);
+				}
+			};
+		}
+
+		for (var i = 0, promise; i < promises.length; i++) {
+			promise = promises[i];
+
+			if (promise && typeof promise.then === 'function') {
+				promise.then(resolver(i), reject);
+			} else {
+				results[i] = promise;
+			}
+		}
+
+		if (!remaining) {
+			resolve(results);
+		}
+	});
+};
+
+Promise.race = function (promises) {
+	if (!Array.isArray(promises)) {
+		throw new TypeError('You must pass an array to Promise.race().');
+	}
+
+	return new Promise(function (resolve, reject) {
+		for (var i = 0, promise; i < promises.length; i++) {
+			promise = promises[i];
+
+			if (promise && typeof promise.then === 'function') {
+				promise.then(resolve, reject);
+			} else {
+				resolve(promise);
+			}
+		}
+	});
+};
+
+Promise.resolve = function (value) {
+	if (value && (typeof value === 'undefined' ? 'undefined' : _typeof(value)) === 'object' && value.constructor === Promise) {
+		return value;
+	}
+
+	return new Promise(function (resolve) {
+		resolve(value);
+	});
+};
+
+Promise.reject = function (reason) {
+	return new Promise(function (resolve, reject) {
+		reject(reason);
+	});
+};
+
+module.exports = Promise;
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{}],100:[function(require,module,exports){
 'use strict';
 
 var numberIsNan = require('number-is-nan');
@@ -20812,7 +22801,7 @@ module.exports = function (num) {
 	return (neg ? '-' : '') + num + ' ' + unit;
 };
 
-},{"number-is-nan":72}],90:[function(require,module,exports){
+},{"number-is-nan":80}],101:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -20834,7 +22823,7 @@ function nextTick(fn) {
 }
 
 }).call(this,require('_process'))
-},{"_process":91}],91:[function(require,module,exports){
+},{"_process":102}],102:[function(require,module,exports){
 'use strict';
 
 // shim for using process in browser
@@ -20933,7 +22922,7 @@ process.umask = function () {
     return 0;
 };
 
-},{}],92:[function(require,module,exports){
+},{}],103:[function(require,module,exports){
 'use strict';
 
 var once = require('once');
@@ -21016,7 +23005,7 @@ var pump = function pump() {
 
 module.exports = pump;
 
-},{"chrome-fs":32,"end-of-stream":45,"once":73}],93:[function(require,module,exports){
+},{"chrome-fs":34,"end-of-stream":49,"once":81}],104:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -21549,7 +23538,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 })(undefined);
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],94:[function(require,module,exports){
+},{}],105:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -21639,7 +23628,7 @@ var isArray = Array.isArray || function (xs) {
   return Object.prototype.toString.call(xs) === '[object Array]';
 };
 
-},{}],95:[function(require,module,exports){
+},{}],106:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -21726,13 +23715,124 @@ var objectKeys = Object.keys || function (obj) {
   return res;
 };
 
-},{}],96:[function(require,module,exports){
+},{}],107:[function(require,module,exports){
 'use strict';
 
 exports.decode = exports.parse = require('./decode');
 exports.encode = exports.stringify = require('./encode');
 
-},{"./decode":94,"./encode":95}],97:[function(require,module,exports){
+},{"./decode":105,"./encode":106}],108:[function(require,module,exports){
+(function (process,Buffer){
+'use strict';
+
+var fs = require('chrome-fs');
+var thunky = require('thunky');
+var path = require('chrome-path');
+var EventEmitter = require('events').EventEmitter;
+var util = require('util');
+
+var POOL_SIZE = 512 * 1024;
+
+var noop = function noop() {};
+var pool = null;
+var used = 0;
+
+var alloc = function alloc(size) {
+	if (size >= POOL_SIZE) return new Buffer(size);
+
+	if (!pool || used + size > pool.length) {
+		used = 0;
+		pool = new Buffer(POOL_SIZE);
+	}
+
+	return pool.slice(used, used += size);
+};
+
+var RandomAccessFile = function RandomAccessFile(filename, size) {
+	if (!(this instanceof RandomAccessFile)) return new RandomAccessFile(filename, size);
+	EventEmitter.call(this);
+
+	var self = this;
+	this.filename = filename;
+	this.fd = null;
+	this.opened = false;
+	this.open = thunky(function (callback) {
+		var onfinish = function onfinish(err, fd) {
+			if (err) return callback(err);
+			self.fd = fd;
+			self.emit('open');
+			callback(err, self);
+		};
+
+		self.opened = true;
+		fs.exists(filename, function (exists) {
+			fs.open(filename, exists ? 'r+' : 'w+', function (err, fd) {
+				if (err || typeof size !== 'number') return onfinish(err, fd);
+				fs.ftruncate(fd, size, function (err) {
+					if (err) return onfinish(err);
+					onfinish(null, fd);
+				});
+			});
+		});
+	});
+};
+
+util.inherits(RandomAccessFile, EventEmitter);
+
+RandomAccessFile.prototype.close = function (callback) {
+	callback = callback || noop;
+
+	var self = this;
+	var onclose = function onclose() {
+		self.emit('close');
+		callback();
+	};
+
+	if (!this.opened) return process.nextTick(onclose);
+	this.open(function (err) {
+		if (err) return callback(err);
+		fs.close(self.fd, function (err) {
+			if (err) return callback(err);
+			onclose();
+		});
+	});
+};
+
+RandomAccessFile.prototype.read = function (offset, length, callback) {
+	this.open(function (err, self) {
+		if (err) return callback(err);
+
+		if (length === 0) return callback(null, new Buffer(0));
+
+		fs.read(self.fd, alloc(length), 0, length, offset, function (err, read, buffer) {
+			if (read !== buffer.length) return callback(new Error('range not satisfied'));
+			callback(err, buffer);
+		});
+	});
+};
+
+RandomAccessFile.prototype.write = function (offset, buffer, callback) {
+	callback = callback || noop;
+	if (typeof buffer === 'string') buffer = new Buffer(buffer);
+	this.open(function (err, self) {
+		if (err) return callback(err);
+		fs.write(self.fd, buffer, 0, buffer.length, offset, callback);
+	});
+};
+
+RandomAccessFile.prototype.unlink = function (callback) {
+	callback = callback || noop;
+	var self = this;
+	this.close(function (err) {
+		if (err) return callback(err);
+		fs.unlink(self.filename, callback);
+	});
+};
+
+module.exports = RandomAccessFile;
+
+}).call(this,require('_process'),require("buffer").Buffer)
+},{"_process":102,"buffer":171,"chrome-fs":34,"chrome-path":36,"events":50,"thunky":150,"util":162}],109:[function(require,module,exports){
 "use strict";
 
 var iterate = function iterate(list) {
@@ -21755,7 +23855,7 @@ var iterate = function iterate(list) {
 
 module.exports = iterate;
 
-},{}],98:[function(require,module,exports){
+},{}],110:[function(require,module,exports){
 /*!
  * range-parser
  * Copyright(c) 2012-2014 TJ Holowaychuk
@@ -21817,7 +23917,7 @@ function rangeParser(size, str) {
   return valid ? arr : -1;
 }
 
-},{}],99:[function(require,module,exports){
+},{}],111:[function(require,module,exports){
 'use strict';
 
 module.exports = reemit;
@@ -21852,12 +23952,12 @@ function filter(source, events) {
   return emitter;
 }
 
-},{"events":46}],100:[function(require,module,exports){
+},{"events":50}],112:[function(require,module,exports){
 "use strict";
 
 module.exports = require("./lib/_stream_duplex.js");
 
-},{"./lib/_stream_duplex.js":101}],101:[function(require,module,exports){
+},{"./lib/_stream_duplex.js":113}],113:[function(require,module,exports){
 // a duplex stream is just a stream that is both readable and writable.
 // Since JS doesn't have multiple prototypal inheritance, this class
 // prototypally inherits from Readable, and then parasitically from
@@ -21934,7 +24034,7 @@ function forEach(xs, f) {
   }
 }
 
-},{"./_stream_readable":103,"./_stream_writable":105,"core-util-is":40,"inherits":54,"process-nextick-args":90}],102:[function(require,module,exports){
+},{"./_stream_readable":115,"./_stream_writable":117,"core-util-is":43,"inherits":61,"process-nextick-args":101}],114:[function(require,module,exports){
 // a passthrough stream.
 // basically just the most minimal sort of Transform stream.
 // Every written chunk gets output as-is.
@@ -21962,7 +24062,7 @@ PassThrough.prototype._transform = function (chunk, encoding, cb) {
   cb(null, chunk);
 };
 
-},{"./_stream_transform":104,"core-util-is":40,"inherits":54}],103:[function(require,module,exports){
+},{"./_stream_transform":116,"core-util-is":43,"inherits":61}],115:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -22837,7 +24937,7 @@ function indexOf(xs, x) {
 }
 
 }).call(this,require('_process'))
-},{"./_stream_duplex":101,"_process":91,"buffer":154,"core-util-is":40,"events":46,"inherits":54,"isarray":61,"process-nextick-args":90,"string_decoder/":130,"util":25}],104:[function(require,module,exports){
+},{"./_stream_duplex":113,"_process":102,"buffer":171,"core-util-is":43,"events":50,"inherits":61,"isarray":68,"process-nextick-args":101,"string_decoder/":146,"util":27}],116:[function(require,module,exports){
 // a transform stream is a readable/writable stream where you do
 // something with the data.  Sometimes it's called a "filter",
 // but that's not a great name for it, since that implies a thing where
@@ -23018,7 +25118,7 @@ function done(stream, er) {
   return stream.push(null);
 }
 
-},{"./_stream_duplex":101,"core-util-is":40,"inherits":54}],105:[function(require,module,exports){
+},{"./_stream_duplex":113,"core-util-is":43,"inherits":61}],117:[function(require,module,exports){
 // A bit simpler than readable streams.
 // Implement an async ._write(chunk, encoding, cb), and it'll handle all
 // the drain event emission and buffering.
@@ -23493,12 +25593,12 @@ function endWritable(stream, state, cb) {
   state.ended = true;
 }
 
-},{"./_stream_duplex":101,"buffer":154,"chrome-util-deprecate":35,"core-util-is":40,"events":46,"inherits":54,"process-nextick-args":90}],106:[function(require,module,exports){
+},{"./_stream_duplex":113,"buffer":171,"chrome-util-deprecate":37,"core-util-is":43,"events":50,"inherits":61,"process-nextick-args":101}],118:[function(require,module,exports){
 "use strict";
 
 module.exports = require("./lib/_stream_passthrough.js");
 
-},{"./lib/_stream_passthrough.js":102}],107:[function(require,module,exports){
+},{"./lib/_stream_passthrough.js":114}],119:[function(require,module,exports){
 'use strict';
 
 var Stream = function () {
@@ -23514,17 +25614,17 @@ exports.Duplex = require('./lib/_stream_duplex.js');
 exports.Transform = require('./lib/_stream_transform.js');
 exports.PassThrough = require('./lib/_stream_passthrough.js');
 
-},{"./lib/_stream_duplex.js":101,"./lib/_stream_passthrough.js":102,"./lib/_stream_readable.js":103,"./lib/_stream_transform.js":104,"./lib/_stream_writable.js":105}],108:[function(require,module,exports){
+},{"./lib/_stream_duplex.js":113,"./lib/_stream_passthrough.js":114,"./lib/_stream_readable.js":115,"./lib/_stream_transform.js":116,"./lib/_stream_writable.js":117}],120:[function(require,module,exports){
 "use strict";
 
 module.exports = require("./lib/_stream_transform.js");
 
-},{"./lib/_stream_transform.js":104}],109:[function(require,module,exports){
+},{"./lib/_stream_transform.js":116}],121:[function(require,module,exports){
 "use strict";
 
 module.exports = require("./lib/_stream_writable.js");
 
-},{"./lib/_stream_writable.js":105}],110:[function(require,module,exports){
+},{"./lib/_stream_writable.js":117}],122:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -23741,7 +25841,7 @@ function validateFile(file) {
 }
 
 }).call(this,require('_process'))
-},{"./lib/mime":111,"_process":91,"chrome-debug":29,"chrome-path":34,"mediasource":66,"stream-to-blob-url":127,"videostream":152}],111:[function(require,module,exports){
+},{"./lib/mime":123,"_process":102,"chrome-debug":31,"chrome-path":36,"mediasource":73,"stream-to-blob-url":143,"videostream":169}],123:[function(require,module,exports){
 module.exports={
   ".3gp": "video/3gpp",
   ".aac": "audio/aac",
@@ -23824,7 +25924,1594 @@ module.exports={
   ".zip": "application/zip"
 }
 
-},{}],112:[function(require,module,exports){
+},{}],124:[function(require,module,exports){
+(function (process){
+"use strict";
+
+exports.alphasort = alphasort;
+exports.alphasorti = alphasorti;
+exports.setopts = setopts;
+exports.ownProp = ownProp;
+exports.makeAbs = makeAbs;
+exports.finish = finish;
+exports.mark = mark;
+exports.isIgnored = isIgnored;
+exports.childrenIgnored = childrenIgnored;
+
+function ownProp(obj, field) {
+  return Object.prototype.hasOwnProperty.call(obj, field);
+}
+
+var path = require('chrome-path');
+var minimatch = require("minimatch");
+var isAbsolute = require("path-is-absolute");
+var Minimatch = minimatch.Minimatch;
+
+function alphasorti(a, b) {
+  return a.toLowerCase().localeCompare(b.toLowerCase());
+}
+
+function alphasort(a, b) {
+  return a.localeCompare(b);
+}
+
+function setupIgnores(self, options) {
+  self.ignore = options.ignore || [];
+
+  if (!Array.isArray(self.ignore)) self.ignore = [self.ignore];
+
+  if (self.ignore.length) {
+    self.ignore = self.ignore.map(ignoreMap);
+  }
+}
+
+// ignore patterns are always in dot:true mode.
+function ignoreMap(pattern) {
+  var gmatcher = null;
+  if (pattern.slice(-3) === '/**') {
+    var gpattern = pattern.replace(/(\/\*\*)+$/, '');
+    gmatcher = new Minimatch(gpattern, { dot: true });
+  }
+
+  return {
+    matcher: new Minimatch(pattern, { dot: true }),
+    gmatcher: gmatcher
+  };
+}
+
+function setopts(self, pattern, options) {
+  if (!options) options = {};
+
+  // base-matching: just use globstar for that.
+  if (options.matchBase && -1 === pattern.indexOf("/")) {
+    if (options.noglobstar) {
+      throw new Error("base matching requires globstar");
+    }
+    pattern = "**/" + pattern;
+  }
+
+  self.silent = !!options.silent;
+  self.pattern = pattern;
+  self.strict = options.strict !== false;
+  self.realpath = !!options.realpath;
+  self.realpathCache = options.realpathCache || Object.create(null);
+  self.follow = !!options.follow;
+  self.dot = !!options.dot;
+  self.mark = !!options.mark;
+  self.nodir = !!options.nodir;
+  if (self.nodir) self.mark = true;
+  self.sync = !!options.sync;
+  self.nounique = !!options.nounique;
+  self.nonull = !!options.nonull;
+  self.nosort = !!options.nosort;
+  self.nocase = !!options.nocase;
+  self.stat = !!options.stat;
+  self.noprocess = !!options.noprocess;
+
+  self.maxLength = options.maxLength || Infinity;
+  self.cache = options.cache || Object.create(null);
+  self.statCache = options.statCache || Object.create(null);
+  self.symlinks = options.symlinks || Object.create(null);
+
+  setupIgnores(self, options);
+
+  self.changedCwd = false;
+  var cwd = process.cwd();
+  if (!ownProp(options, "cwd")) self.cwd = cwd;else {
+    self.cwd = options.cwd;
+    self.changedCwd = path.resolve(options.cwd) !== cwd;
+  }
+
+  self.root = options.root || path.resolve(self.cwd, "/");
+  self.root = path.resolve(self.root);
+  if (process.platform === "win32") self.root = self.root.replace(/\\/g, "/");
+
+  self.nomount = !!options.nomount;
+
+  // disable comments and negation in Minimatch.
+  // Note that they are not supported in Glob itself anyway.
+  options.nonegate = true;
+  options.nocomment = true;
+
+  self.minimatch = new Minimatch(pattern, options);
+  self.options = self.minimatch.options;
+}
+
+function finish(self) {
+  var nou = self.nounique;
+  var all = nou ? [] : Object.create(null);
+
+  for (var i = 0, l = self.matches.length; i < l; i++) {
+    var matches = self.matches[i];
+    if (!matches || Object.keys(matches).length === 0) {
+      if (self.nonull) {
+        // do like the shell, and spit out the literal glob
+        var literal = self.minimatch.globSet[i];
+        if (nou) all.push(literal);else all[literal] = true;
+      }
+    } else {
+      // had matches
+      var m = Object.keys(matches);
+      if (nou) all.push.apply(all, m);else m.forEach(function (m) {
+        all[m] = true;
+      });
+    }
+  }
+
+  if (!nou) all = Object.keys(all);
+
+  if (!self.nosort) all = all.sort(self.nocase ? alphasorti : alphasort);
+
+  // at *some* point we statted all of these
+  if (self.mark) {
+    for (var i = 0; i < all.length; i++) {
+      all[i] = self._mark(all[i]);
+    }
+    if (self.nodir) {
+      all = all.filter(function (e) {
+        return !/\/$/.test(e);
+      });
+    }
+  }
+
+  if (self.ignore.length) all = all.filter(function (m) {
+    return !isIgnored(self, m);
+  });
+
+  self.found = all;
+}
+
+function mark(self, p) {
+  var abs = makeAbs(self, p);
+  var c = self.cache[abs];
+  var m = p;
+  if (c) {
+    var isDir = c === 'DIR' || Array.isArray(c);
+    var slash = p.slice(-1) === '/';
+
+    if (isDir && !slash) m += '/';else if (!isDir && slash) m = m.slice(0, -1);
+
+    if (m !== p) {
+      var mabs = makeAbs(self, m);
+      self.statCache[mabs] = self.statCache[abs];
+      self.cache[mabs] = self.cache[abs];
+    }
+  }
+
+  return m;
+}
+
+// lotta situps...
+function makeAbs(self, f) {
+  var abs = f;
+  if (f.charAt(0) === '/') {
+    abs = path.join(self.root, f);
+  } else if (isAbsolute(f) || f === '') {
+    abs = f;
+  } else if (self.changedCwd) {
+    abs = path.resolve(self.cwd, f);
+  } else {
+    abs = path.resolve(f);
+  }
+  return abs;
+}
+
+// Return true, if pattern ends with globstar '**', for the accompanying parent directory.
+// Ex:- If node_modules/** is the pattern, add 'node_modules' to ignore list along with it's contents
+function isIgnored(self, path) {
+  if (!self.ignore.length) return false;
+
+  return self.ignore.some(function (item) {
+    return item.matcher.match(path) || !!(item.gmatcher && item.gmatcher.match(path));
+  });
+}
+
+function childrenIgnored(self, path) {
+  if (!self.ignore.length) return false;
+
+  return self.ignore.some(function (item) {
+    return !!(item.gmatcher && item.gmatcher.match(path));
+  });
+}
+
+}).call(this,require('_process'))
+},{"_process":102,"chrome-path":36,"minimatch":76,"path-is-absolute":96}],125:[function(require,module,exports){
+(function (process){
+'use strict';
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
+// Approach:
+//
+// 1. Get the minimatch set
+// 2. For each pattern in the set, PROCESS(pattern, false)
+// 3. Store matches per-set, then uniq them
+//
+// PROCESS(pattern, inGlobStar)
+// Get the first [n] items from pattern that are all strings
+// Join these together.  This is PREFIX.
+//   If there is no more remaining, then stat(PREFIX) and
+//   add to matches if it succeeds.  END.
+//
+// If inGlobStar and PREFIX is symlink and points to dir
+//   set ENTRIES = []
+// else readdir(PREFIX) as ENTRIES
+//   If fail, END
+//
+// with ENTRIES
+//   If pattern[n] is GLOBSTAR
+//     // handle the case where the globstar match is empty
+//     // by pruning it out, and testing the resulting pattern
+//     PROCESS(pattern[0..n] + pattern[n+1 .. $], false)
+//     // handle other cases.
+//     for ENTRY in ENTRIES (not dotfiles)
+//       // attach globstar + tail onto the entry
+//       // Mark that this entry is a globstar match
+//       PROCESS(pattern[0..n] + ENTRY + pattern[n .. $], true)
+//
+//   else // not globstar
+//     for ENTRY in ENTRIES (not dotfiles, unless pattern[n] is dot)
+//       Test ENTRY against pattern[n]
+//       If fails, continue
+//       If passes, PROCESS(pattern[0..n] + item + pattern[n+1 .. $])
+//
+// Caveat:
+//   Cache all stats and readdirs results to minimize syscall.  Since all
+//   we ever care about is existence and directory-ness, we can just keep
+//   `true` for files, and [children,...] for directories, or `false` for
+//   things that don't exist.
+
+module.exports = glob;
+
+var fs = require('chrome-fs');
+var minimatch = require('minimatch');
+var Minimatch = minimatch.Minimatch;
+var inherits = require('inherits');
+var EE = require('events').EventEmitter;
+var path = require('chrome-path');
+var assert = require('assert');
+var isAbsolute = require('path-is-absolute');
+var globSync = require('./sync.js');
+var common = require('./common.js');
+var alphasort = common.alphasort;
+var alphasorti = common.alphasorti;
+var setopts = common.setopts;
+var ownProp = common.ownProp;
+var inflight = require('inflight');
+var util = require('util');
+var childrenIgnored = common.childrenIgnored;
+var isIgnored = common.isIgnored;
+
+var once = require('once');
+
+function glob(pattern, options, cb) {
+  if (typeof options === 'function') cb = options, options = {};
+  if (!options) options = {};
+
+  if (options.sync) {
+    if (cb) throw new TypeError('callback provided to sync glob');
+    return globSync(pattern, options);
+  }
+
+  return new Glob(pattern, options, cb);
+}
+
+glob.sync = globSync;
+var GlobSync = glob.GlobSync = globSync.GlobSync;
+
+// old api surface
+glob.glob = glob;
+
+function extend(origin, add) {
+  if (add === null || (typeof add === 'undefined' ? 'undefined' : _typeof(add)) !== 'object') {
+    return origin;
+  }
+
+  var keys = Object.keys(add);
+  var i = keys.length;
+  while (i--) {
+    origin[keys[i]] = add[keys[i]];
+  }
+  return origin;
+}
+
+glob.hasMagic = function (pattern, options_) {
+  var options = extend({}, options_);
+  options.noprocess = true;
+
+  var g = new Glob(pattern, options);
+  var set = g.minimatch.set;
+  if (set.length > 1) return true;
+
+  for (var j = 0; j < set[0].length; j++) {
+    if (typeof set[0][j] !== 'string') return true;
+  }
+
+  return false;
+};
+
+glob.Glob = Glob;
+inherits(Glob, EE);
+function Glob(pattern, options, cb) {
+  if (typeof options === 'function') {
+    cb = options;
+    options = null;
+  }
+
+  if (options && options.sync) {
+    if (cb) throw new TypeError('callback provided to sync glob');
+    return new GlobSync(pattern, options);
+  }
+
+  if (!(this instanceof Glob)) return new Glob(pattern, options, cb);
+
+  setopts(this, pattern, options);
+  this._didRealPath = false;
+
+  // process each pattern in the minimatch set
+  var n = this.minimatch.set.length;
+
+  // The matches are stored as {<filename>: true,...} so that
+  // duplicates are automagically pruned.
+  // Later, we do an Object.keys() on these.
+  // Keep them as a list so we can fill in when nonull is set.
+  this.matches = new Array(n);
+
+  if (typeof cb === 'function') {
+    cb = once(cb);
+    this.on('error', cb);
+    this.on('end', function (matches) {
+      cb(null, matches);
+    });
+  }
+
+  var self = this;
+  var n = this.minimatch.set.length;
+  this._processing = 0;
+  this.matches = new Array(n);
+
+  this._emitQueue = [];
+  this._processQueue = [];
+  this.paused = false;
+
+  if (this.noprocess) return this;
+
+  if (n === 0) return done();
+
+  for (var i = 0; i < n; i++) {
+    this._process(this.minimatch.set[i], i, false, done);
+  }
+
+  function done() {
+    --self._processing;
+    if (self._processing <= 0) self._finish();
+  }
+}
+
+Glob.prototype._finish = function () {
+  assert(this instanceof Glob);
+  if (this.aborted) return;
+
+  if (this.realpath && !this._didRealpath) return this._realpath();
+
+  common.finish(this);
+  this.emit('end', this.found);
+};
+
+Glob.prototype._realpath = function () {
+  if (this._didRealpath) return;
+
+  this._didRealpath = true;
+
+  var n = this.matches.length;
+  if (n === 0) return this._finish();
+
+  var self = this;
+  for (var i = 0; i < this.matches.length; i++) {
+    this._realpathSet(i, next);
+  }function next() {
+    if (--n === 0) self._finish();
+  }
+};
+
+Glob.prototype._realpathSet = function (index, cb) {
+  var matchset = this.matches[index];
+  if (!matchset) return cb();
+
+  var found = Object.keys(matchset);
+  var self = this;
+  var n = found.length;
+
+  if (n === 0) return cb();
+
+  var set = this.matches[index] = Object.create(null);
+  found.forEach(function (p, i) {
+    // If there's a problem with the stat, then it means that
+    // one or more of the links in the realpath couldn't be
+    // resolved.  just return the abs value in that case.
+    p = self._makeAbs(p);
+    fs.realpath(p, self.realpathCache, function (er, real) {
+      if (!er) set[real] = true;else if (er.syscall === 'stat') set[p] = true;else self.emit('error', er); // srsly wtf right here
+
+      if (--n === 0) {
+        self.matches[index] = set;
+        cb();
+      }
+    });
+  });
+};
+
+Glob.prototype._mark = function (p) {
+  return common.mark(this, p);
+};
+
+Glob.prototype._makeAbs = function (f) {
+  return common.makeAbs(this, f);
+};
+
+Glob.prototype.abort = function () {
+  this.aborted = true;
+  this.emit('abort');
+};
+
+Glob.prototype.pause = function () {
+  if (!this.paused) {
+    this.paused = true;
+    this.emit('pause');
+  }
+};
+
+Glob.prototype.resume = function () {
+  if (this.paused) {
+    this.emit('resume');
+    this.paused = false;
+    if (this._emitQueue.length) {
+      var eq = this._emitQueue.slice(0);
+      this._emitQueue.length = 0;
+      for (var i = 0; i < eq.length; i++) {
+        var e = eq[i];
+        this._emitMatch(e[0], e[1]);
+      }
+    }
+    if (this._processQueue.length) {
+      var pq = this._processQueue.slice(0);
+      this._processQueue.length = 0;
+      for (var i = 0; i < pq.length; i++) {
+        var p = pq[i];
+        this._processing--;
+        this._process(p[0], p[1], p[2], p[3]);
+      }
+    }
+  }
+};
+
+Glob.prototype._process = function (pattern, index, inGlobStar, cb) {
+  assert(this instanceof Glob);
+  assert(typeof cb === 'function');
+
+  if (this.aborted) return;
+
+  this._processing++;
+  if (this.paused) {
+    this._processQueue.push([pattern, index, inGlobStar, cb]);
+    return;
+  }
+
+  //console.error('PROCESS %d', this._processing, pattern)
+
+  // Get the first [n] parts of pattern that are all strings.
+  var n = 0;
+  while (typeof pattern[n] === 'string') {
+    n++;
+  }
+  // now n is the index of the first one that is *not* a string.
+
+  // see if there's anything else
+  var prefix;
+  switch (n) {
+    // if not, then this is rather simple
+    case pattern.length:
+      this._processSimple(pattern.join('/'), index, cb);
+      return;
+
+    case 0:
+      // pattern *starts* with some non-trivial item.
+      // going to readdir(cwd), but not include the prefix in matches.
+      prefix = null;
+      break;
+
+    default:
+      // pattern has some string bits in the front.
+      // whatever it starts with, whether that's 'absolute' like /foo/bar,
+      // or 'relative' like '../baz'
+      prefix = pattern.slice(0, n).join('/');
+      break;
+  }
+
+  var remain = pattern.slice(n);
+
+  // get the list of entries.
+  var read;
+  if (prefix === null) read = '.';else if (isAbsolute(prefix) || isAbsolute(pattern.join('/'))) {
+    if (!prefix || !isAbsolute(prefix)) prefix = '/' + prefix;
+    read = prefix;
+  } else read = prefix;
+
+  var abs = this._makeAbs(read);
+
+  //if ignored, skip _processing
+  if (childrenIgnored(this, read)) return cb();
+
+  var isGlobStar = remain[0] === minimatch.GLOBSTAR;
+  if (isGlobStar) this._processGlobStar(prefix, read, abs, remain, index, inGlobStar, cb);else this._processReaddir(prefix, read, abs, remain, index, inGlobStar, cb);
+};
+
+Glob.prototype._processReaddir = function (prefix, read, abs, remain, index, inGlobStar, cb) {
+  var self = this;
+  this._readdir(abs, inGlobStar, function (er, entries) {
+    return self._processReaddir2(prefix, read, abs, remain, index, inGlobStar, entries, cb);
+  });
+};
+
+Glob.prototype._processReaddir2 = function (prefix, read, abs, remain, index, inGlobStar, entries, cb) {
+
+  // if the abs isn't a dir, then nothing can match!
+  if (!entries) return cb();
+
+  // It will only match dot entries if it starts with a dot, or if
+  // dot is set.  Stuff like @(.foo|.bar) isn't allowed.
+  var pn = remain[0];
+  var negate = !!this.minimatch.negate;
+  var rawGlob = pn._glob;
+  var dotOk = this.dot || rawGlob.charAt(0) === '.';
+
+  var matchedEntries = [];
+  for (var i = 0; i < entries.length; i++) {
+    var e = entries[i];
+    if (e.charAt(0) !== '.' || dotOk) {
+      var m;
+      if (negate && !prefix) {
+        m = !e.match(pn);
+      } else {
+        m = e.match(pn);
+      }
+      if (m) matchedEntries.push(e);
+    }
+  }
+
+  //console.error('prd2', prefix, entries, remain[0]._glob, matchedEntries)
+
+  var len = matchedEntries.length;
+  // If there are no matched entries, then nothing matches.
+  if (len === 0) return cb();
+
+  // if this is the last remaining pattern bit, then no need for
+  // an additional stat *unless* the user has specified mark or
+  // stat explicitly.  We know they exist, since readdir returned
+  // them.
+
+  if (remain.length === 1 && !this.mark && !this.stat) {
+    if (!this.matches[index]) this.matches[index] = Object.create(null);
+
+    for (var i = 0; i < len; i++) {
+      var e = matchedEntries[i];
+      if (prefix) {
+        if (prefix !== '/') e = prefix + '/' + e;else e = prefix + e;
+      }
+
+      if (e.charAt(0) === '/' && !this.nomount) {
+        e = path.join(this.root, e);
+      }
+      this._emitMatch(index, e);
+    }
+    // This was the last one, and no stats were needed
+    return cb();
+  }
+
+  // now test all matched entries as stand-ins for that part
+  // of the pattern.
+  remain.shift();
+  for (var i = 0; i < len; i++) {
+    var e = matchedEntries[i];
+    var newPattern;
+    if (prefix) {
+      if (prefix !== '/') e = prefix + '/' + e;else e = prefix + e;
+    }
+    this._process([e].concat(remain), index, inGlobStar, cb);
+  }
+  cb();
+};
+
+Glob.prototype._emitMatch = function (index, e) {
+  if (this.aborted) return;
+
+  if (this.matches[index][e]) return;
+
+  if (isIgnored(this, e)) return;
+
+  if (this.paused) {
+    this._emitQueue.push([index, e]);
+    return;
+  }
+
+  var abs = this._makeAbs(e);
+
+  if (this.nodir) {
+    var c = this.cache[abs];
+    if (c === 'DIR' || Array.isArray(c)) return;
+  }
+
+  if (this.mark) e = this._mark(e);
+
+  this.matches[index][e] = true;
+
+  var st = this.statCache[abs];
+  if (st) this.emit('stat', e, st);
+
+  this.emit('match', e);
+};
+
+Glob.prototype._readdirInGlobStar = function (abs, cb) {
+  if (this.aborted) return;
+
+  // follow all symlinked directories forever
+  // just proceed as if this is a non-globstar situation
+  if (this.follow) return this._readdir(abs, false, cb);
+
+  var lstatkey = 'lstat\0' + abs;
+  var self = this;
+  var lstatcb = inflight(lstatkey, lstatcb_);
+
+  if (lstatcb) fs.lstat(abs, lstatcb);
+
+  function lstatcb_(er, lstat) {
+    if (er) return cb();
+
+    var isSym = lstat.isSymbolicLink();
+    self.symlinks[abs] = isSym;
+
+    // If it's not a symlink or a dir, then it's definitely a regular file.
+    // don't bother doing a readdir in that case.
+    if (!isSym && !lstat.isDirectory()) {
+      self.cache[abs] = 'FILE';
+      cb();
+    } else self._readdir(abs, false, cb);
+  }
+};
+
+Glob.prototype._readdir = function (abs, inGlobStar, cb) {
+  if (this.aborted) return;
+
+  cb = inflight('readdir\0' + abs + '\0' + inGlobStar, cb);
+  if (!cb) return;
+
+  //console.error('RD %j %j', +inGlobStar, abs)
+  if (inGlobStar && !ownProp(this.symlinks, abs)) return this._readdirInGlobStar(abs, cb);
+
+  if (ownProp(this.cache, abs)) {
+    var c = this.cache[abs];
+    if (!c || c === 'FILE') return cb();
+
+    if (Array.isArray(c)) return cb(null, c);
+  }
+
+  var self = this;
+  fs.readdir(abs, readdirCb(this, abs, cb));
+};
+
+function readdirCb(self, abs, cb) {
+  return function (er, entries) {
+    if (er) self._readdirError(abs, er, cb);else self._readdirEntries(abs, entries, cb);
+  };
+}
+
+Glob.prototype._readdirEntries = function (abs, entries, cb) {
+  if (this.aborted) return;
+
+  // if we haven't asked to stat everything, then just
+  // assume that everything in there exists, so we can avoid
+  // having to stat it a second time.
+  if (!this.mark && !this.stat) {
+    for (var i = 0; i < entries.length; i++) {
+      var e = entries[i];
+      if (abs === '/') e = abs + e;else e = abs + '/' + e;
+      this.cache[e] = true;
+    }
+  }
+
+  this.cache[abs] = entries;
+  return cb(null, entries);
+};
+
+Glob.prototype._readdirError = function (f, er, cb) {
+  if (this.aborted) return;
+
+  // handle errors, and cache the information
+  switch (er.code) {
+    case 'ENOTSUP': // https://github.com/isaacs/node-glob/issues/205
+    case 'ENOTDIR':
+      // totally normal. means it *does* exist.
+      this.cache[this._makeAbs(f)] = 'FILE';
+      break;
+
+    case 'ENOENT': // not terribly unusual
+    case 'ELOOP':
+    case 'ENAMETOOLONG':
+    case 'UNKNOWN':
+      this.cache[this._makeAbs(f)] = false;
+      break;
+
+    default:
+      // some unusual error.  Treat as failure.
+      this.cache[this._makeAbs(f)] = false;
+      if (this.strict) {
+        this.emit('error', er);
+        // If the error is handled, then we abort
+        // if not, we threw out of here
+        this.abort();
+      }
+      if (!this.silent) console.error('glob error', er);
+      break;
+  }
+
+  return cb();
+};
+
+Glob.prototype._processGlobStar = function (prefix, read, abs, remain, index, inGlobStar, cb) {
+  var self = this;
+  this._readdir(abs, inGlobStar, function (er, entries) {
+    self._processGlobStar2(prefix, read, abs, remain, index, inGlobStar, entries, cb);
+  });
+};
+
+Glob.prototype._processGlobStar2 = function (prefix, read, abs, remain, index, inGlobStar, entries, cb) {
+  //console.error('pgs2', prefix, remain[0], entries)
+
+  // no entries means not a dir, so it can never have matches
+  // foo.txt/** doesn't match foo.txt
+  if (!entries) return cb();
+
+  // test without the globstar, and with every child both below
+  // and replacing the globstar.
+  var remainWithoutGlobStar = remain.slice(1);
+  var gspref = prefix ? [prefix] : [];
+  var noGlobStar = gspref.concat(remainWithoutGlobStar);
+
+  // the noGlobStar pattern exits the inGlobStar state
+  this._process(noGlobStar, index, false, cb);
+
+  var isSym = this.symlinks[abs];
+  var len = entries.length;
+
+  // If it's a symlink, and we're in a globstar, then stop
+  if (isSym && inGlobStar) return cb();
+
+  for (var i = 0; i < len; i++) {
+    var e = entries[i];
+    if (e.charAt(0) === '.' && !this.dot) continue;
+
+    // these two cases enter the inGlobStar state
+    var instead = gspref.concat(entries[i], remainWithoutGlobStar);
+    this._process(instead, index, true, cb);
+
+    var below = gspref.concat(entries[i], remain);
+    this._process(below, index, true, cb);
+  }
+
+  cb();
+};
+
+Glob.prototype._processSimple = function (prefix, index, cb) {
+  // XXX review this.  Shouldn't it be doing the mounting etc
+  // before doing stat?  kinda weird?
+  var self = this;
+  this._stat(prefix, function (er, exists) {
+    self._processSimple2(prefix, index, er, exists, cb);
+  });
+};
+Glob.prototype._processSimple2 = function (prefix, index, er, exists, cb) {
+
+  //console.error('ps2', prefix, exists)
+
+  if (!this.matches[index]) this.matches[index] = Object.create(null);
+
+  // If it doesn't exist, then just mark the lack of results
+  if (!exists) return cb();
+
+  if (prefix && isAbsolute(prefix) && !this.nomount) {
+    var trail = /[\/\\]$/.test(prefix);
+    if (prefix.charAt(0) === '/') {
+      prefix = path.join(this.root, prefix);
+    } else {
+      prefix = path.resolve(this.root, prefix);
+      if (trail) prefix += '/';
+    }
+  }
+
+  if (process.platform === 'win32') prefix = prefix.replace(/\\/g, '/');
+
+  // Mark this as a match
+  this._emitMatch(index, prefix);
+  cb();
+};
+
+// Returns either 'DIR', 'FILE', or false
+Glob.prototype._stat = function (f, cb) {
+  var abs = this._makeAbs(f);
+  var needDir = f.slice(-1) === '/';
+
+  if (f.length > this.maxLength) return cb();
+
+  if (!this.stat && ownProp(this.cache, abs)) {
+    var c = this.cache[abs];
+
+    if (Array.isArray(c)) c = 'DIR';
+
+    // It exists, but maybe not how we need it
+    if (!needDir || c === 'DIR') return cb(null, c);
+
+    if (needDir && c === 'FILE') return cb();
+
+    // otherwise we have to stat, because maybe c=true
+    // if we know it exists, but not what it is.
+  }
+
+  var exists;
+  var stat = this.statCache[abs];
+  if (stat !== undefined) {
+    if (stat === false) return cb(null, stat);else {
+      var type = stat.isDirectory() ? 'DIR' : 'FILE';
+      if (needDir && type === 'FILE') return cb();else return cb(null, type, stat);
+    }
+  }
+
+  var self = this;
+  var statcb = inflight('stat\0' + abs, lstatcb_);
+  if (statcb) fs.lstat(abs, statcb);
+
+  function lstatcb_(er, lstat) {
+    if (lstat && lstat.isSymbolicLink()) {
+      // If it's a symlink, then treat it as the target, unless
+      // the target does not exist, then treat it as a file.
+      return fs.stat(abs, function (er, stat) {
+        if (er) self._stat2(f, abs, null, lstat, cb);else self._stat2(f, abs, er, stat, cb);
+      });
+    } else {
+      self._stat2(f, abs, er, lstat, cb);
+    }
+  }
+};
+
+Glob.prototype._stat2 = function (f, abs, er, stat, cb) {
+  if (er) {
+    this.statCache[abs] = false;
+    return cb();
+  }
+
+  var needDir = f.slice(-1) === '/';
+  this.statCache[abs] = stat;
+
+  if (abs.slice(-1) === '/' && !stat.isDirectory()) return cb(null, false, stat);
+
+  var c = stat.isDirectory() ? 'DIR' : 'FILE';
+  this.cache[abs] = this.cache[abs] || c;
+
+  if (needDir && c !== 'DIR') return cb();
+
+  return cb(null, c, stat);
+};
+
+}).call(this,require('_process'))
+},{"./common.js":124,"./sync.js":126,"_process":102,"assert":5,"chrome-fs":34,"chrome-path":36,"events":50,"inflight":60,"inherits":61,"minimatch":76,"once":81,"path-is-absolute":96,"util":162}],126:[function(require,module,exports){
+(function (process){
+'use strict';
+
+module.exports = globSync;
+globSync.GlobSync = GlobSync;
+
+var fs = require('chrome-fs');
+var minimatch = require('minimatch');
+var Minimatch = minimatch.Minimatch;
+var Glob = require('./glob.js').Glob;
+var util = require('util');
+var path = require('chrome-path');
+var assert = require('assert');
+var isAbsolute = require('path-is-absolute');
+var common = require('./common.js');
+var alphasort = common.alphasort;
+var alphasorti = common.alphasorti;
+var setopts = common.setopts;
+var ownProp = common.ownProp;
+var childrenIgnored = common.childrenIgnored;
+
+function globSync(pattern, options) {
+  if (typeof options === 'function' || arguments.length === 3) throw new TypeError('callback provided to sync glob\n' + 'See: https://github.com/isaacs/node-glob/issues/167');
+
+  return new GlobSync(pattern, options).found;
+}
+
+function GlobSync(pattern, options) {
+  if (!pattern) throw new Error('must provide pattern');
+
+  if (typeof options === 'function' || arguments.length === 3) throw new TypeError('callback provided to sync glob\n' + 'See: https://github.com/isaacs/node-glob/issues/167');
+
+  if (!(this instanceof GlobSync)) return new GlobSync(pattern, options);
+
+  setopts(this, pattern, options);
+
+  if (this.noprocess) return this;
+
+  var n = this.minimatch.set.length;
+  this.matches = new Array(n);
+  for (var i = 0; i < n; i++) {
+    this._process(this.minimatch.set[i], i, false);
+  }
+  this._finish();
+}
+
+GlobSync.prototype._finish = function () {
+  assert(this instanceof GlobSync);
+  if (this.realpath) {
+    var self = this;
+    this.matches.forEach(function (matchset, index) {
+      var set = self.matches[index] = Object.create(null);
+      for (var p in matchset) {
+        try {
+          p = self._makeAbs(p);
+          var real = fs.realpathSync(p, self.realpathCache);
+          set[real] = true;
+        } catch (er) {
+          if (er.syscall === 'stat') set[self._makeAbs(p)] = true;else throw er;
+        }
+      }
+    });
+  }
+  common.finish(this);
+};
+
+GlobSync.prototype._process = function (pattern, index, inGlobStar) {
+  assert(this instanceof GlobSync);
+
+  // Get the first [n] parts of pattern that are all strings.
+  var n = 0;
+  while (typeof pattern[n] === 'string') {
+    n++;
+  }
+  // now n is the index of the first one that is *not* a string.
+
+  // See if there's anything else
+  var prefix;
+  switch (n) {
+    // if not, then this is rather simple
+    case pattern.length:
+      this._processSimple(pattern.join('/'), index);
+      return;
+
+    case 0:
+      // pattern *starts* with some non-trivial item.
+      // going to readdir(cwd), but not include the prefix in matches.
+      prefix = null;
+      break;
+
+    default:
+      // pattern has some string bits in the front.
+      // whatever it starts with, whether that's 'absolute' like /foo/bar,
+      // or 'relative' like '../baz'
+      prefix = pattern.slice(0, n).join('/');
+      break;
+  }
+
+  var remain = pattern.slice(n);
+
+  // get the list of entries.
+  var read;
+  if (prefix === null) read = '.';else if (isAbsolute(prefix) || isAbsolute(pattern.join('/'))) {
+    if (!prefix || !isAbsolute(prefix)) prefix = '/' + prefix;
+    read = prefix;
+  } else read = prefix;
+
+  var abs = this._makeAbs(read);
+
+  //if ignored, skip processing
+  if (childrenIgnored(this, read)) return;
+
+  var isGlobStar = remain[0] === minimatch.GLOBSTAR;
+  if (isGlobStar) this._processGlobStar(prefix, read, abs, remain, index, inGlobStar);else this._processReaddir(prefix, read, abs, remain, index, inGlobStar);
+};
+
+GlobSync.prototype._processReaddir = function (prefix, read, abs, remain, index, inGlobStar) {
+  var entries = this._readdir(abs, inGlobStar);
+
+  // if the abs isn't a dir, then nothing can match!
+  if (!entries) return;
+
+  // It will only match dot entries if it starts with a dot, or if
+  // dot is set.  Stuff like @(.foo|.bar) isn't allowed.
+  var pn = remain[0];
+  var negate = !!this.minimatch.negate;
+  var rawGlob = pn._glob;
+  var dotOk = this.dot || rawGlob.charAt(0) === '.';
+
+  var matchedEntries = [];
+  for (var i = 0; i < entries.length; i++) {
+    var e = entries[i];
+    if (e.charAt(0) !== '.' || dotOk) {
+      var m;
+      if (negate && !prefix) {
+        m = !e.match(pn);
+      } else {
+        m = e.match(pn);
+      }
+      if (m) matchedEntries.push(e);
+    }
+  }
+
+  var len = matchedEntries.length;
+  // If there are no matched entries, then nothing matches.
+  if (len === 0) return;
+
+  // if this is the last remaining pattern bit, then no need for
+  // an additional stat *unless* the user has specified mark or
+  // stat explicitly.  We know they exist, since readdir returned
+  // them.
+
+  if (remain.length === 1 && !this.mark && !this.stat) {
+    if (!this.matches[index]) this.matches[index] = Object.create(null);
+
+    for (var i = 0; i < len; i++) {
+      var e = matchedEntries[i];
+      if (prefix) {
+        if (prefix.slice(-1) !== '/') e = prefix + '/' + e;else e = prefix + e;
+      }
+
+      if (e.charAt(0) === '/' && !this.nomount) {
+        e = path.join(this.root, e);
+      }
+      this.matches[index][e] = true;
+    }
+    // This was the last one, and no stats were needed
+    return;
+  }
+
+  // now test all matched entries as stand-ins for that part
+  // of the pattern.
+  remain.shift();
+  for (var i = 0; i < len; i++) {
+    var e = matchedEntries[i];
+    var newPattern;
+    if (prefix) newPattern = [prefix, e];else newPattern = [e];
+    this._process(newPattern.concat(remain), index, inGlobStar);
+  }
+};
+
+GlobSync.prototype._emitMatch = function (index, e) {
+  var abs = this._makeAbs(e);
+  if (this.mark) e = this._mark(e);
+
+  if (this.matches[index][e]) return;
+
+  if (this.nodir) {
+    var c = this.cache[this._makeAbs(e)];
+    if (c === 'DIR' || Array.isArray(c)) return;
+  }
+
+  this.matches[index][e] = true;
+  if (this.stat) this._stat(e);
+};
+
+GlobSync.prototype._readdirInGlobStar = function (abs) {
+  // follow all symlinked directories forever
+  // just proceed as if this is a non-globstar situation
+  if (this.follow) return this._readdir(abs, false);
+
+  var entries;
+  var lstat;
+  var stat;
+  try {
+    lstat = fs.lstatSync(abs);
+  } catch (er) {
+    // lstat failed, doesn't exist
+    return null;
+  }
+
+  var isSym = lstat.isSymbolicLink();
+  this.symlinks[abs] = isSym;
+
+  // If it's not a symlink or a dir, then it's definitely a regular file.
+  // don't bother doing a readdir in that case.
+  if (!isSym && !lstat.isDirectory()) this.cache[abs] = 'FILE';else entries = this._readdir(abs, false);
+
+  return entries;
+};
+
+GlobSync.prototype._readdir = function (abs, inGlobStar) {
+  var entries;
+
+  if (inGlobStar && !ownProp(this.symlinks, abs)) return this._readdirInGlobStar(abs);
+
+  if (ownProp(this.cache, abs)) {
+    var c = this.cache[abs];
+    if (!c || c === 'FILE') return null;
+
+    if (Array.isArray(c)) return c;
+  }
+
+  try {
+    return this._readdirEntries(abs, fs.readdirSync(abs));
+  } catch (er) {
+    this._readdirError(abs, er);
+    return null;
+  }
+};
+
+GlobSync.prototype._readdirEntries = function (abs, entries) {
+  // if we haven't asked to stat everything, then just
+  // assume that everything in there exists, so we can avoid
+  // having to stat it a second time.
+  if (!this.mark && !this.stat) {
+    for (var i = 0; i < entries.length; i++) {
+      var e = entries[i];
+      if (abs === '/') e = abs + e;else e = abs + '/' + e;
+      this.cache[e] = true;
+    }
+  }
+
+  this.cache[abs] = entries;
+
+  // mark and cache dir-ness
+  return entries;
+};
+
+GlobSync.prototype._readdirError = function (f, er) {
+  // handle errors, and cache the information
+  switch (er.code) {
+    case 'ENOTSUP': // https://github.com/isaacs/node-glob/issues/205
+    case 'ENOTDIR':
+      // totally normal. means it *does* exist.
+      this.cache[this._makeAbs(f)] = 'FILE';
+      break;
+
+    case 'ENOENT': // not terribly unusual
+    case 'ELOOP':
+    case 'ENAMETOOLONG':
+    case 'UNKNOWN':
+      this.cache[this._makeAbs(f)] = false;
+      break;
+
+    default:
+      // some unusual error.  Treat as failure.
+      this.cache[this._makeAbs(f)] = false;
+      if (this.strict) throw er;
+      if (!this.silent) console.error('glob error', er);
+      break;
+  }
+};
+
+GlobSync.prototype._processGlobStar = function (prefix, read, abs, remain, index, inGlobStar) {
+
+  var entries = this._readdir(abs, inGlobStar);
+
+  // no entries means not a dir, so it can never have matches
+  // foo.txt/** doesn't match foo.txt
+  if (!entries) return;
+
+  // test without the globstar, and with every child both below
+  // and replacing the globstar.
+  var remainWithoutGlobStar = remain.slice(1);
+  var gspref = prefix ? [prefix] : [];
+  var noGlobStar = gspref.concat(remainWithoutGlobStar);
+
+  // the noGlobStar pattern exits the inGlobStar state
+  this._process(noGlobStar, index, false);
+
+  var len = entries.length;
+  var isSym = this.symlinks[abs];
+
+  // If it's a symlink, and we're in a globstar, then stop
+  if (isSym && inGlobStar) return;
+
+  for (var i = 0; i < len; i++) {
+    var e = entries[i];
+    if (e.charAt(0) === '.' && !this.dot) continue;
+
+    // these two cases enter the inGlobStar state
+    var instead = gspref.concat(entries[i], remainWithoutGlobStar);
+    this._process(instead, index, true);
+
+    var below = gspref.concat(entries[i], remain);
+    this._process(below, index, true);
+  }
+};
+
+GlobSync.prototype._processSimple = function (prefix, index) {
+  // XXX review this.  Shouldn't it be doing the mounting etc
+  // before doing stat?  kinda weird?
+  var exists = this._stat(prefix);
+
+  if (!this.matches[index]) this.matches[index] = Object.create(null);
+
+  // If it doesn't exist, then just mark the lack of results
+  if (!exists) return;
+
+  if (prefix && isAbsolute(prefix) && !this.nomount) {
+    var trail = /[\/\\]$/.test(prefix);
+    if (prefix.charAt(0) === '/') {
+      prefix = path.join(this.root, prefix);
+    } else {
+      prefix = path.resolve(this.root, prefix);
+      if (trail) prefix += '/';
+    }
+  }
+
+  if (process.platform === 'win32') prefix = prefix.replace(/\\/g, '/');
+
+  // Mark this as a match
+  this.matches[index][prefix] = true;
+};
+
+// Returns either 'DIR', 'FILE', or false
+GlobSync.prototype._stat = function (f) {
+  var abs = this._makeAbs(f);
+  var needDir = f.slice(-1) === '/';
+
+  if (f.length > this.maxLength) return false;
+
+  if (!this.stat && ownProp(this.cache, abs)) {
+    var c = this.cache[abs];
+
+    if (Array.isArray(c)) c = 'DIR';
+
+    // It exists, but maybe not how we need it
+    if (!needDir || c === 'DIR') return c;
+
+    if (needDir && c === 'FILE') return false;
+
+    // otherwise we have to stat, because maybe c=true
+    // if we know it exists, but not what it is.
+  }
+
+  var exists;
+  var stat = this.statCache[abs];
+  if (!stat) {
+    var lstat;
+    try {
+      lstat = fs.lstatSync(abs);
+    } catch (er) {
+      return false;
+    }
+
+    if (lstat.isSymbolicLink()) {
+      try {
+        stat = fs.statSync(abs);
+      } catch (er) {
+        stat = lstat;
+      }
+    } else {
+      stat = lstat;
+    }
+  }
+
+  this.statCache[abs] = stat;
+
+  var c = stat.isDirectory() ? 'DIR' : 'FILE';
+  this.cache[abs] = this.cache[abs] || c;
+
+  if (needDir && c !== 'DIR') return false;
+
+  return c;
+};
+
+GlobSync.prototype._mark = function (p) {
+  return common.mark(this, p);
+};
+
+GlobSync.prototype._makeAbs = function (f) {
+  return common.makeAbs(this, f);
+};
+
+}).call(this,require('_process'))
+},{"./common.js":124,"./glob.js":125,"_process":102,"assert":5,"chrome-fs":34,"chrome-path":36,"minimatch":76,"path-is-absolute":96,"util":162}],127:[function(require,module,exports){
+(function (process){
+"use strict";
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
+module.exports = rimraf;
+rimraf.sync = rimrafSync;
+
+var assert = require("assert");
+var path = require('chrome-path');
+var fs = require('chrome-fs');
+var glob = require("glob");
+
+var defaultGlobOpts = {
+  nosort: true,
+  silent: true
+};
+
+// for EMFILE handling
+var timeout = 0;
+
+var isWindows = process.platform === "win32";
+
+function defaults(options) {
+  var methods = ['unlink', 'chmod', 'stat', 'lstat', 'rmdir', 'readdir'];
+  methods.forEach(function (m) {
+    options[m] = options[m] || fs[m];
+    m = m + 'Sync';
+    options[m] = options[m] || fs[m];
+  });
+
+  options.maxBusyTries = options.maxBusyTries || 3;
+  options.emfileWait = options.emfileWait || 1000;
+  if (options.glob === false) {
+    options.disableGlob = true;
+  }
+  options.disableGlob = options.disableGlob || false;
+  options.glob = options.glob || defaultGlobOpts;
+}
+
+function rimraf(p, options, cb) {
+  if (typeof options === 'function') {
+    cb = options;
+    options = {};
+  }
+
+  assert(p, 'rimraf: missing path');
+  assert.equal(typeof p === "undefined" ? "undefined" : _typeof(p), 'string', 'rimraf: path should be a string');
+  assert(options, 'rimraf: missing options');
+  assert.equal(typeof options === "undefined" ? "undefined" : _typeof(options), 'object', 'rimraf: options should be object');
+  assert.equal(typeof cb === "undefined" ? "undefined" : _typeof(cb), 'function', 'rimraf: callback function required');
+
+  defaults(options);
+
+  var busyTries = 0;
+  var errState = null;
+  var n = 0;
+
+  if (options.disableGlob || !glob.hasMagic(p)) return afterGlob(null, [p]);
+
+  fs.lstat(p, function (er, stat) {
+    if (!er) return afterGlob(null, [p]);
+
+    glob(p, options.glob, afterGlob);
+  });
+
+  function next(er) {
+    errState = errState || er;
+    if (--n === 0) cb(errState);
+  }
+
+  function afterGlob(er, results) {
+    if (er) return cb(er);
+
+    n = results.length;
+    if (n === 0) return cb();
+
+    results.forEach(function (p) {
+      rimraf_(p, options, function CB(er) {
+        if (er) {
+          if (isWindows && (er.code === "EBUSY" || er.code === "ENOTEMPTY" || er.code === "EPERM") && busyTries < options.maxBusyTries) {
+            busyTries++;
+            var time = busyTries * 100;
+            // try again, with the same exact callback as this one.
+            return setTimeout(function () {
+              rimraf_(p, options, CB);
+            }, time);
+          }
+
+          // this one won't happen if graceful-fs is used.
+          if (er.code === "EMFILE" && timeout < options.emfileWait) {
+            return setTimeout(function () {
+              rimraf_(p, options, CB);
+            }, timeout++);
+          }
+
+          // already gone
+          if (er.code === "ENOENT") er = null;
+        }
+
+        timeout = 0;
+        next(er);
+      });
+    });
+  }
+}
+
+// Two possible strategies.
+// 1. Assume it's a file.  unlink it, then do the dir stuff on EPERM or EISDIR
+// 2. Assume it's a directory.  readdir, then do the file stuff on ENOTDIR
+//
+// Both result in an extra syscall when you guess wrong.  However, there
+// are likely far more normal files in the world than directories.  This
+// is based on the assumption that a the average number of files per
+// directory is >= 1.
+//
+// If anyone ever complains about this, then I guess the strategy could
+// be made configurable somehow.  But until then, YAGNI.
+function rimraf_(p, options, cb) {
+  assert(p);
+  assert(options);
+  assert(typeof cb === 'function');
+
+  // sunos lets the root user unlink directories, which is... weird.
+  // so we have to lstat here and make sure it's not a dir.
+  options.lstat(p, function (er, st) {
+    if (er && er.code === "ENOENT") return cb(null);
+
+    if (st && st.isDirectory()) return rmdir(p, options, er, cb);
+
+    options.unlink(p, function (er) {
+      if (er) {
+        if (er.code === "ENOENT") return cb(null);
+        if (er.code === "EPERM") return isWindows ? fixWinEPERM(p, options, er, cb) : rmdir(p, options, er, cb);
+        if (er.code === "EISDIR") return rmdir(p, options, er, cb);
+      }
+      return cb(er);
+    });
+  });
+}
+
+function fixWinEPERM(p, options, er, cb) {
+  assert(p);
+  assert(options);
+  assert(typeof cb === 'function');
+  if (er) assert(er instanceof Error);
+
+  options.chmod(p, 666, function (er2) {
+    if (er2) cb(er2.code === "ENOENT" ? null : er);else options.stat(p, function (er3, stats) {
+      if (er3) cb(er3.code === "ENOENT" ? null : er);else if (stats.isDirectory()) rmdir(p, options, er, cb);else options.unlink(p, cb);
+    });
+  });
+}
+
+function fixWinEPERMSync(p, options, er) {
+  assert(p);
+  assert(options);
+  if (er) assert(er instanceof Error);
+
+  try {
+    options.chmodSync(p, 666);
+  } catch (er2) {
+    if (er2.code === "ENOENT") return;else throw er;
+  }
+
+  try {
+    var stats = options.statSync(p);
+  } catch (er3) {
+    if (er3.code === "ENOENT") return;else throw er;
+  }
+
+  if (stats.isDirectory()) rmdirSync(p, options, er);else options.unlinkSync(p);
+}
+
+function rmdir(p, options, originalEr, cb) {
+  assert(p);
+  assert(options);
+  if (originalEr) assert(originalEr instanceof Error);
+  assert(typeof cb === 'function');
+
+  // try to rmdir first, and only readdir on ENOTEMPTY or EEXIST (SunOS)
+  // if we guessed wrong, and it's not a directory, then
+  // raise the original error.
+  options.rmdir(p, function (er) {
+    if (er && (er.code === "ENOTEMPTY" || er.code === "EEXIST" || er.code === "EPERM")) rmkids(p, options, cb);else if (er && er.code === "ENOTDIR") cb(originalEr);else cb(er);
+  });
+}
+
+function rmkids(p, options, cb) {
+  assert(p);
+  assert(options);
+  assert(typeof cb === 'function');
+
+  options.readdir(p, function (er, files) {
+    if (er) return cb(er);
+    var n = files.length;
+    if (n === 0) return options.rmdir(p, cb);
+    var errState;
+    files.forEach(function (f) {
+      rimraf(path.join(p, f), options, function (er) {
+        if (errState) return;
+        if (er) return cb(errState = er);
+        if (--n === 0) options.rmdir(p, cb);
+      });
+    });
+  });
+}
+
+// this looks simpler, and is strictly *faster*, but will
+// tie up the JavaScript thread and fail on excessively
+// deep directory trees.
+function rimrafSync(p, options) {
+  options = options || {};
+  defaults(options);
+
+  assert(p, 'rimraf: missing path');
+  assert.equal(typeof p === "undefined" ? "undefined" : _typeof(p), 'string', 'rimraf: path should be a string');
+  assert(options, 'rimraf: missing options');
+  assert.equal(typeof options === "undefined" ? "undefined" : _typeof(options), 'object', 'rimraf: options should be object');
+
+  var results;
+
+  if (options.disableGlob || !glob.hasMagic(p)) {
+    results = [p];
+  } else {
+    try {
+      fs.lstatSync(p);
+      results = [p];
+    } catch (er) {
+      results = glob.sync(p, options.glob);
+    }
+  }
+
+  if (!results.length) return;
+
+  for (var i = 0; i < results.length; i++) {
+    var p = results[i];
+
+    try {
+      var st = options.lstatSync(p);
+    } catch (er) {
+      if (er.code === "ENOENT") return;
+    }
+
+    try {
+      // sunos lets the root user unlink directories, which is... weird.
+      if (st && st.isDirectory()) rmdirSync(p, options, null);else options.unlinkSync(p);
+    } catch (er) {
+      if (er.code === "ENOENT") return;
+      if (er.code === "EPERM") return isWindows ? fixWinEPERMSync(p, options, er) : rmdirSync(p, options, er);
+      if (er.code !== "EISDIR") throw er;
+      rmdirSync(p, options, er);
+    }
+  }
+}
+
+function rmdirSync(p, options, originalEr) {
+  assert(p);
+  assert(options);
+  if (originalEr) assert(originalEr instanceof Error);
+
+  try {
+    options.rmdirSync(p);
+  } catch (er) {
+    if (er.code === "ENOENT") return;
+    if (er.code === "ENOTDIR") throw originalEr;
+    if (er.code === "ENOTEMPTY" || er.code === "EEXIST" || er.code === "EPERM") rmkidsSync(p, options);
+  }
+}
+
+function rmkidsSync(p, options) {
+  assert(p);
+  assert(options);
+  options.readdirSync(p).forEach(function (f) {
+    rimrafSync(path.join(p, f), options);
+  });
+  options.rmdirSync(p, options);
+}
+
+}).call(this,require('_process'))
+},{"_process":102,"assert":5,"chrome-fs":34,"chrome-path":36,"glob":125}],128:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -23891,7 +27578,7 @@ module.exports = function (tasks, limit, cb) {
 };
 
 }).call(this,require('_process'))
-},{"_process":91}],113:[function(require,module,exports){
+},{"_process":102}],129:[function(require,module,exports){
 (function (process){
 "use strict";
 
@@ -23942,7 +27629,7 @@ module.exports = function (tasks, cb) {
 };
 
 }).call(this,require('_process'))
-},{"_process":91}],114:[function(require,module,exports){
+},{"_process":102}],130:[function(require,module,exports){
 (function (process){
 "use strict";
 
@@ -23969,7 +27656,7 @@ module.exports = function (tasks, cb) {
 };
 
 }).call(this,require('_process'))
-},{"_process":91}],115:[function(require,module,exports){
+},{"_process":102}],131:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -24423,7 +28110,7 @@ module.exports = function (tasks, cb) {
 })();
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],116:[function(require,module,exports){
+},{}],132:[function(require,module,exports){
 (function (Buffer){
 'use strict';
 
@@ -24505,7 +28192,7 @@ function parseOptsUrl(opts) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":154,"http":123,"https":51,"once":73,"unzip-response":25,"url":140,"xtend":164}],117:[function(require,module,exports){
+},{"buffer":171,"http":139,"https":57,"once":81,"unzip-response":27,"url":157,"xtend":181}],133:[function(require,module,exports){
 (function (Buffer){
 'use strict';
 
@@ -25032,7 +28719,7 @@ Peer.prototype._debug = function () {
 function noop() {}
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":154,"chrome-debug":29,"get-browser-rtc":49,"hat":50,"inherits":54,"is-typedarray":60,"once":73,"stream":122}],118:[function(require,module,exports){
+},{"buffer":171,"chrome-debug":31,"get-browser-rtc":55,"hat":56,"inherits":61,"is-typedarray":67,"once":81,"stream":138}],134:[function(require,module,exports){
 'use strict';
 
 var Rusha = require('rusha');
@@ -25093,7 +28780,7 @@ function hex(buf) {
 module.exports = sha1;
 module.exports.sync = sha1sync;
 
-},{"rusha":115}],119:[function(require,module,exports){
+},{"rusha":131}],135:[function(require,module,exports){
 (function (Buffer){
 'use strict';
 
@@ -25333,7 +29020,7 @@ Socket.prototype._onError = function (err) {
 };
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":154,"chrome-debug":29,"inherits":54,"is-typedarray":60,"stream":122,"ws":25}],120:[function(require,module,exports){
+},{"buffer":171,"chrome-debug":31,"inherits":61,"is-typedarray":67,"stream":138,"ws":27}],136:[function(require,module,exports){
 "use strict";
 
 var tick = 1;
@@ -25372,7 +29059,7 @@ module.exports = function (seconds) {
   };
 };
 
-},{}],121:[function(require,module,exports){
+},{}],137:[function(require,module,exports){
 'use strict';
 
 //filter will reemit the data if cb(err,pass) pass is truthy
@@ -25428,7 +29115,7 @@ function split(matcher, mapper, options) {
   });
 }
 
-},{"string_decoder":130,"through":133}],122:[function(require,module,exports){
+},{"string_decoder":146,"through":149}],138:[function(require,module,exports){
 'use strict';
 
 // Copyright Joyent, Inc. and other Node contributors.
@@ -25556,7 +29243,7 @@ Stream.prototype.pipe = function (dest, options) {
   return dest;
 };
 
-},{"events":46,"inherits":54,"readable-stream/duplex.js":100,"readable-stream/passthrough.js":106,"readable-stream/readable.js":107,"readable-stream/transform.js":108,"readable-stream/writable.js":109}],123:[function(require,module,exports){
+},{"events":50,"inherits":61,"readable-stream/duplex.js":112,"readable-stream/passthrough.js":118,"readable-stream/readable.js":119,"readable-stream/transform.js":120,"readable-stream/writable.js":121}],139:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -25609,7 +29296,7 @@ http.STATUS_CODES = statusCodes;
 http.METHODS = ['CHECKOUT', 'CONNECT', 'COPY', 'DELETE', 'GET', 'HEAD', 'LOCK', 'M-SEARCH', 'MERGE', 'MKACTIVITY', 'MKCOL', 'MOVE', 'NOTIFY', 'OPTIONS', 'PATCH', 'POST', 'PROPFIND', 'PROPPATCH', 'PURGE', 'PUT', 'REPORT', 'SEARCH', 'SUBSCRIBE', 'TRACE', 'UNLOCK', 'UNSUBSCRIBE'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./lib/request":125,"builtin-status-codes":28,"url":140,"xtend":164}],124:[function(require,module,exports){
+},{"./lib/request":141,"builtin-status-codes":30,"url":157,"xtend":181}],140:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -25654,7 +29341,7 @@ function isFunction(value) {
 xhr = null; // Help gc
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],125:[function(require,module,exports){
+},{}],141:[function(require,module,exports){
 (function (process,global,Buffer){
 'use strict';
 
@@ -25904,7 +29591,7 @@ ClientRequest.prototype.setSocketKeepAlive = function () {};
 var unsafeHeaders = ['accept-charset', 'accept-encoding', 'access-control-request-headers', 'access-control-request-method', 'connection', 'content-length', 'cookie', 'cookie2', 'date', 'dnt', 'expect', 'host', 'keep-alive', 'origin', 'referer', 'te', 'trailer', 'transfer-encoding', 'upgrade', 'user-agent', 'via'];
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer)
-},{"./capability":124,"./response":126,"_process":91,"buffer":154,"inherits":54,"stream":122,"to-arraybuffer":135}],126:[function(require,module,exports){
+},{"./capability":140,"./response":142,"_process":102,"buffer":171,"inherits":61,"stream":138,"to-arraybuffer":152}],142:[function(require,module,exports){
 (function (process,global,Buffer){
 'use strict';
 
@@ -26082,7 +29769,7 @@ IncomingMessage.prototype._onXHRProgress = function () {
 };
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer)
-},{"./capability":124,"_process":91,"buffer":154,"inherits":54,"stream":122}],127:[function(require,module,exports){
+},{"./capability":140,"_process":102,"buffer":171,"inherits":61,"stream":138}],143:[function(require,module,exports){
 'use strict';
 
 /* global Blob, URL */
@@ -26098,7 +29785,7 @@ module.exports = function getBlobURL(stream, length, mimeType, cb) {
   });
 };
 
-},{"stream-with-known-length-to-buffer":128}],128:[function(require,module,exports){
+},{"stream-with-known-length-to-buffer":144}],144:[function(require,module,exports){
 (function (Buffer){
 'use strict';
 
@@ -26117,7 +29804,7 @@ module.exports = function getBuffer(stream, length, cb) {
 };
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":154,"once":73}],129:[function(require,module,exports){
+},{"buffer":171,"once":81}],145:[function(require,module,exports){
 (function (Buffer){
 'use strict';
 
@@ -26154,7 +29841,7 @@ module.exports.multi = module.exports;
 module.exports.multi6 = module.exports;
 
 }).call(this,require("buffer").Buffer)
-},{"addr-to-ip-port/index":2,"buffer":154,"ipaddr.js":57}],130:[function(require,module,exports){
+},{"addr-to-ip-port/index":2,"buffer":171,"ipaddr.js":64}],146:[function(require,module,exports){
 'use strict';
 
 // Copyright Joyent, Inc. and other Node contributors.
@@ -26375,7 +30062,7 @@ function base64DetectIncompleteChar(buffer) {
   this.charLength = this.charReceived ? 3 : 0;
 }
 
-},{"buffer":154}],131:[function(require,module,exports){
+},{"buffer":171}],147:[function(require,module,exports){
 'use strict';
 
 /*                                                                              
@@ -26405,7 +30092,7 @@ var base32 = require('./thirty-two');
 exports.encode = base32.encode;
 exports.decode = base32.decode;
 
-},{"./thirty-two":132}],132:[function(require,module,exports){
+},{"./thirty-two":148}],148:[function(require,module,exports){
 (function (Buffer){
 "use strict";
 
@@ -26526,7 +30213,7 @@ exports.decode = function (encoded) {
 };
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":154}],133:[function(require,module,exports){
+},{"buffer":171}],149:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -26640,7 +30327,45 @@ function through(write, end, opts) {
 }
 
 }).call(this,require('_process'))
-},{"_process":91,"stream":122}],134:[function(require,module,exports){
+},{"_process":102,"stream":138}],150:[function(require,module,exports){
+'use strict';
+
+var isError = function isError(err) {
+	// inlined from util so this works in the browser
+	return Object.prototype.toString.call(err) === '[object Error]';
+};
+
+var thunky = function thunky(fn) {
+	var run = function run(callback) {
+		var stack = [callback];
+
+		state = function state(callback) {
+			stack.push(callback);
+		};
+
+		fn(function (err) {
+			var args = arguments;
+			var apply = function apply(callback) {
+				if (callback) callback.apply(null, args);
+			};
+
+			state = isError(err) ? run : apply;
+			while (stack.length) {
+				apply(stack.shift());
+			}
+		});
+	};
+
+	var state = run;
+
+	return function (callback) {
+		state(callback);
+	};
+};
+
+module.exports = thunky;
+
+},{}],151:[function(require,module,exports){
 "use strict";
 
 var nextTick = require('process/browser.js').nextTick;
@@ -26720,7 +30445,7 @@ exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate :
   delete immediateIds[id];
 };
 
-},{"process/browser.js":91}],135:[function(require,module,exports){
+},{"process/browser.js":102}],152:[function(require,module,exports){
 'use strict';
 
 var Buffer = require('buffer').Buffer;
@@ -26751,7 +30476,7 @@ module.exports = function (buf) {
 	}
 };
 
-},{"buffer":154}],136:[function(require,module,exports){
+},{"buffer":171}],153:[function(require,module,exports){
 (function (process,Buffer){
 'use strict';
 
@@ -26936,7 +30661,7 @@ Discovery.prototype._dhtAnnounce = function () {
 };
 
 }).call(this,require('_process'),require("buffer").Buffer)
-},{"_process":91,"bittorrent-dht/client":25,"bittorrent-tracker/client":15,"buffer":154,"chrome-debug":29,"events":46,"inherits":54,"re-emitter":99,"run-parallel":113,"xtend":164}],137:[function(require,module,exports){
+},{"_process":102,"bittorrent-dht/client":27,"bittorrent-tracker/client":16,"buffer":171,"chrome-debug":31,"events":50,"inherits":61,"re-emitter":111,"run-parallel":129,"xtend":181}],154:[function(require,module,exports){
 (function (Buffer){
 "use strict";
 
@@ -27020,7 +30745,7 @@ Piece.prototype.init = function () {
 };
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":154}],138:[function(require,module,exports){
+},{"buffer":171}],155:[function(require,module,exports){
 (function (Buffer){
 'use strict';
 
@@ -27051,7 +30776,7 @@ module.exports = function typedarrayToBuffer(arr) {
 };
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":154,"is-typedarray":60}],139:[function(require,module,exports){
+},{"buffer":171,"is-typedarray":67}],156:[function(require,module,exports){
 "use strict";
 
 function unique_pred(list, compare) {
@@ -27112,7 +30837,7 @@ function unique(list, compare, sorted) {
 
 module.exports = unique;
 
-},{}],140:[function(require,module,exports){
+},{}],157:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -27819,7 +31544,7 @@ Url.prototype.parseHost = function () {
   if (host) this.hostname = host;
 };
 
-},{"./util":141,"punycode":93,"querystring":96}],141:[function(require,module,exports){
+},{"./util":158,"punycode":104,"querystring":107}],158:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
@@ -27839,7 +31564,7 @@ module.exports = {
   }
 };
 
-},{}],142:[function(require,module,exports){
+},{}],159:[function(require,module,exports){
 (function (Buffer){
 'use strict';
 
@@ -28083,7 +31808,7 @@ module.exports = function (metadata) {
 };
 
 }).call(this,require("buffer").Buffer)
-},{"bencode":6,"bitfield":10,"buffer":154,"events":46,"inherits":54,"simple-sha1":118}],143:[function(require,module,exports){
+},{"bencode":7,"bitfield":11,"buffer":171,"events":50,"inherits":61,"simple-sha1":134}],160:[function(require,module,exports){
 (function (Buffer){
 'use strict';
 
@@ -28261,7 +31986,7 @@ module.exports = function () {
 };
 
 }).call(this,require("buffer").Buffer)
-},{"bencode":6,"buffer":154,"compact2string":38,"events":46,"inherits":54,"string2compact":129}],144:[function(require,module,exports){
+},{"bencode":7,"buffer":171,"compact2string":40,"events":50,"inherits":61,"string2compact":145}],161:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
@@ -28270,7 +31995,7 @@ module.exports = function isBuffer(arg) {
   return arg && (typeof arg === 'undefined' ? 'undefined' : _typeof(arg)) === 'object' && typeof arg.copy === 'function' && typeof arg.fill === 'function' && typeof arg.readUInt8 === 'function';
 };
 
-},{}],145:[function(require,module,exports){
+},{}],162:[function(require,module,exports){
 (function (process,global){
 'use strict';
 
@@ -28822,7 +32547,7 @@ function hasOwnProperty(obj, prop) {
 }
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./support/isBuffer":144,"_process":91,"inherits":54}],146:[function(require,module,exports){
+},{"./support/isBuffer":161,"_process":102,"inherits":61}],163:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
@@ -30316,7 +34041,7 @@ DataStream.prototype.adjustUint32 = function (position, value) {
   this.seek(pos);
 };
 
-},{}],147:[function(require,module,exports){
+},{}],164:[function(require,module,exports){
 'use strict';
 
 /* 
@@ -31852,7 +35577,7 @@ BoxParser.tfdtBox.prototype.write = function (stream) {
 	}
 };
 
-},{"./DataStream":146,"./descriptor":148,"./log":150}],148:[function(require,module,exports){
+},{"./DataStream":163,"./descriptor":165,"./log":167}],165:[function(require,module,exports){
 "use strict";
 
 /* 
@@ -32009,7 +35734,7 @@ var MPEG4DescriptorParser = function MPEG4DescriptorParser() {
 };
 module.exports = MPEG4DescriptorParser;
 
-},{"./log":150}],149:[function(require,module,exports){
+},{"./log":167}],166:[function(require,module,exports){
 'use strict';
 
 /* 
@@ -32765,7 +36490,7 @@ ISOFile.prototype.releaseSample = function (trak, sampleNum) {
 	return sample.size;
 };
 
-},{"./DataStream":146,"./box":147,"./log":150}],150:[function(require,module,exports){
+},{"./DataStream":163,"./box":164,"./log":167}],167:[function(require,module,exports){
 "use strict";
 
 /* 
@@ -32849,7 +36574,7 @@ Log.printRanges = function (ranges) {
 	}
 };
 
-},{}],151:[function(require,module,exports){
+},{}],168:[function(require,module,exports){
 'use strict';
 
 /* 
@@ -33526,7 +37251,7 @@ MP4Box.prototype.seek = function (time, useRap) {
 	}
 };
 
-},{"./DataStream":146,"./box":147,"./isofile":149,"./log":150}],152:[function(require,module,exports){
+},{"./DataStream":163,"./box":164,"./isofile":166,"./log":167}],169:[function(require,module,exports){
 (function (Buffer){
 'use strict';
 
@@ -33844,7 +37569,7 @@ function save(filename, buffers) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":154,"chrome-debug":29,"videostream-mp4box":151}],153:[function(require,module,exports){
+},{"buffer":171,"chrome-debug":31,"videostream-mp4box":168}],170:[function(require,module,exports){
 'use strict';
 
 ;(function (exports) {
@@ -33964,7 +37689,7 @@ function save(filename, buffers) {
   exports.fromByteArray = uint8ToBase64;
 })(typeof exports === 'undefined' ? undefined.base64js = {} : exports);
 
-},{}],154:[function(require,module,exports){
+},{}],171:[function(require,module,exports){
 (function (global){
 /*!
  * The buffer module from node.js, for the browser.
@@ -35383,7 +39108,7 @@ function blitBuffer(src, dst, offset, length) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"base64-js":153,"ieee754":52,"isarray":155}],155:[function(require,module,exports){
+},{"base64-js":170,"ieee754":58,"isarray":172}],172:[function(require,module,exports){
 'use strict';
 
 var toString = {}.toString;
@@ -35392,7 +39117,7 @@ module.exports = Array.isArray || function (arr) {
   return toString.call(arr) == '[object Array]';
 };
 
-},{}],156:[function(require,module,exports){
+},{}],173:[function(require,module,exports){
 (function (process,global,Buffer){
 'use strict';
 
@@ -35706,7 +39431,7 @@ WebTorrent.prototype.destroy = function (cb) {
 };
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer)
-},{"./lib/torrent":161,"./package.json":162,"_process":91,"bittorrent-dht/client":25,"buffer":154,"chrome-debug":29,"chrome-path":34,"create-torrent":42,"events":46,"hat":50,"inherits":54,"load-ip-set/index":63,"parse-torrent":87,"run-parallel":113,"simple-peer":117,"speedometer":120,"xtend":164,"zero-fill":166}],157:[function(require,module,exports){
+},{"./lib/torrent":178,"./package.json":179,"_process":102,"bittorrent-dht/client":27,"buffer":171,"chrome-debug":31,"chrome-path":36,"create-torrent":45,"events":50,"hat":56,"inherits":61,"load-ip-set/index":70,"parse-torrent":95,"run-parallel":129,"simple-peer":133,"speedometer":136,"xtend":181,"zero-fill":183}],174:[function(require,module,exports){
 'use strict';
 
 module.exports = FileStream;
@@ -35798,7 +39523,7 @@ FileStream.prototype.destroy = function () {
   }
 };
 
-},{"chrome-debug":29,"inherits":54,"stream":122}],158:[function(require,module,exports){
+},{"chrome-debug":31,"inherits":61,"stream":138}],175:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -35926,7 +39651,7 @@ File.prototype.renderTo = function (elem, cb) {
 };
 
 }).call(this,require('_process'))
-},{"./file-stream":157,"_process":91,"chrome-path":34,"end-of-stream":45,"events":46,"inherits":54,"render-media":110,"stream":122,"stream-to-blob-url":127,"stream-with-known-length-to-buffer":128}],159:[function(require,module,exports){
+},{"./file-stream":174,"_process":102,"chrome-path":36,"end-of-stream":49,"events":50,"inherits":61,"render-media":122,"stream":138,"stream-to-blob-url":143,"stream-with-known-length-to-buffer":144}],176:[function(require,module,exports){
 'use strict';
 
 module.exports = RarityMap;
@@ -36020,7 +39745,7 @@ RarityMap.prototype.getRarestPiece = function (pieceFilterFunc) {
   }
 };
 
-},{}],160:[function(require,module,exports){
+},{}],177:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -36133,7 +39858,7 @@ function Server(torrent, opts) {
 }
 
 }).call(this,require('_process'))
-},{"_process":91,"chrome-debug":29,"http":123,"mime":68,"pretty-bytes":89,"pump":92,"range-parser":98,"url":140}],161:[function(require,module,exports){
+},{"_process":102,"chrome-debug":31,"http":139,"mime":74,"pretty-bytes":100,"pump":103,"range-parser":110,"url":157}],178:[function(require,module,exports){
 (function (process,global){
 'use strict';
 
@@ -37400,7 +41125,7 @@ function randomInt(high) {
 function noop() {}
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./file":158,"./rarity-map":159,"./server":160,"_process":91,"addr-to-ip-port/index":2,"bitfield":10,"bittorrent-swarm":12,"chrome-debug":29,"chrome-path":34,"chunk-store-stream/write":36,"cpus":41,"create-torrent":42,"events":46,"fs-chunk-store":67,"immediate-chunk-store":53,"inherits":54,"multistream":71,"os":25,"parse-torrent":87,"path-exists":25,"pump":92,"random-iterate":97,"re-emitter":99,"run-parallel":113,"run-parallel-limit":112,"simple-sha1":118,"torrent-discovery":136,"torrent-piece":137,"uniq":139,"ut_metadata":142,"ut_pex/index":143,"xtend/mutable":165}],162:[function(require,module,exports){
+},{"./file":175,"./rarity-map":176,"./server":177,"_process":102,"addr-to-ip-port/index":2,"bitfield":11,"bittorrent-swarm":13,"chrome-debug":31,"chrome-path":36,"chunk-store-stream/write":38,"cpus":44,"create-torrent":45,"events":50,"fs-chunk-store":53,"immediate-chunk-store":59,"inherits":61,"multistream":79,"os":27,"parse-torrent":95,"path-exists":27,"pump":103,"random-iterate":109,"re-emitter":111,"run-parallel":129,"run-parallel-limit":128,"simple-sha1":134,"torrent-discovery":153,"torrent-piece":154,"uniq":156,"ut_metadata":159,"ut_pex/index":160,"xtend/mutable":182}],179:[function(require,module,exports){
 module.exports={
   "_args": [
     [
@@ -37448,7 +41173,6 @@ module.exports={
   },
   "browser": {
     "bittorrent-dht/client": false,
-    "fs-chunk-store": "memory-chunk-store",
     "load-ip-set": false,
     "os": false,
     "path-exists": false,
@@ -37574,7 +41298,7 @@ module.exports={
   },
   "version": "0.72.2"
 }
-},{}],163:[function(require,module,exports){
+},{}],180:[function(require,module,exports){
 'use strict';
 
 // Returns a wrapper function that returns a wrapped callback
@@ -37610,7 +41334,7 @@ function wrappy(fn, cb) {
   }
 }
 
-},{}],164:[function(require,module,exports){
+},{}],181:[function(require,module,exports){
 "use strict";
 
 module.exports = extend;
@@ -37633,7 +41357,7 @@ function extend() {
     return target;
 }
 
-},{}],165:[function(require,module,exports){
+},{}],182:[function(require,module,exports){
 "use strict";
 
 module.exports = extend;
@@ -37654,7 +41378,7 @@ function extend(target) {
     return target;
 }
 
-},{}],166:[function(require,module,exports){
+},{}],183:[function(require,module,exports){
 'use strict';
 
 /**
