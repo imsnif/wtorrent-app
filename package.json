@@ -45,7 +45,7 @@
     "react-loader": "^2.0.0",
     "react-xeditable": "^0.1.3",
     "rmdir": "^1.1.0",
-    "web-fs": "^1.7.0",
+    "web-fs": "^2.0.0",
     "webtorrent": "^0.72.1"
   },
   "devDependencies": {
