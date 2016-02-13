@@ -60,7 +60,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 //import WebTorrent from 'webtorrent'
 
-var store = (0, _redux.createStore)(_reducers2.default, (0, _redux.applyMiddleware)(_reducers2.default, _chromeMessage.chromeMessageMiddleware));
+var store = (0, _redux.createStore)(_reducers2.default, (0, _redux.applyMiddleware)(_torrentClient.torrentClient, _chromeMessage.chromeMessage));
 (0, _torrentClient2.default)(store);
 (0, _chromeMessage2.default)(store);
 
@@ -70,7 +70,7 @@ var store = (0, _redux.createStore)(_reducers2.default, (0, _redux.applyMiddlewa
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.chromeMessageMiddleware = chromeMessageMiddleware;
+exports.chromeMessage = chromeMessage;
 
 exports.default = function (store) {
   chrome.runtime.onInstalled.addListener(updateFsEntry);
@@ -115,11 +115,11 @@ function updateFsEntry() {
   }
 }
 
-function chromeMessageMiddleware(store) {
+function chromeMessage(store) {
   return function (next) {
     return function (action) {
       var result = next(action);
-      updateFs();
+      updateFsEntry();
       return result;
     };
   };
@@ -131,7 +131,7 @@ function chromeMessageMiddleware(store) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.torrentClientMiddleware = torrentClientMiddleware;
+exports.torrentClient = torrentClient;
 
 exports.default = function (store) {
   client = new _webtorrent2.default({ maxConns: 10 });
@@ -156,7 +156,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var reportTimer = null;
 var client = null;
 
-function torrentClientMiddleware(store) {
+function torrentClient(store) {
   return function (next) {
     return function (action) {
       var result = next(action);
