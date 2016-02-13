@@ -73,6 +73,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.chromeMessage = chromeMessage;
 
 exports.default = function (store) {
+  console.log("initting chromeMessage");
   chrome.runtime.onInstalled.addListener(updateFsEntry);
   store.subscribe(function () {
     var state = store.getState();
@@ -101,7 +102,8 @@ var _webtorrent2 = _interopRequireDefault(_webtorrent);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function updateFsEntry() {
-  if (_fs2.default.entry === "undefined") {
+  if (_fs2.default.entry === undefined) {
+    _fs2.default.entry = null;
     chrome.app.window.create("settings.html", function (settingsWindow) {
       settingsWindow.onClosed.addListener(function () {
         chrome.storage.local.get('filesystemKey', function (items) {
