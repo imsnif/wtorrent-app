@@ -71,7 +71,6 @@ Object.defineProperty(exports, "__esModule", {
 exports.chromeMessage = chromeMessage;
 
 exports.default = function (store) {
-  console.log("initting chromeMessage");
   chrome.runtime.onInstalled.addListener(updateFsEntry);
   store.subscribe(function () {
     var state = store.getState();
@@ -81,7 +80,8 @@ exports.default = function (store) {
     chrome.runtime.sendMessage("kechjjcjfbniofinibgojemmindijlbj", (0, _clientActions.updateClient)(state.client));
   });
   chrome.runtime.onMessageExternal.addListener(function (message) {
-    store.dispatch((0, _torrentActions.addTorrent)(message.magnetUri));
+    console.log("dispatching:", message);
+    store.dispatch(message);
   });
 };
 
@@ -101,7 +101,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function updateFsEntry() {
   if (_fs2.default.entry === undefined) {
-    _fs2.default.entry = null;
+    _fs2.default.entry = null; // Temporarily set to avoid race condition
     chrome.app.window.create("settings.html", function (settingsWindow) {
       settingsWindow.onClosed.addListener(function () {
         chrome.storage.local.get('filesystemKey', function (items) {
@@ -249,7 +249,8 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 var torrent = function torrent(state, action) {
   switch (action.type) {
     case 'ADD_TORRENT':
-      var infoHash = (0, _parseTorrent2.default)(action.magnetUri.infoHash);
+      console.log("action is:", action);
+      var infoHash = (0, _parseTorrent2.default)(action.magnetUri).infoHash;
       return { infoHash: infoHash };
     case 'UPDATE_TORRENT':
       if (state.infoHash !== action.infoHash) return state;
