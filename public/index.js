@@ -58,8 +58,6 @@ var _chromeMessage2 = _interopRequireDefault(_chromeMessage);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-//import WebTorrent from 'webtorrent'
-
 var store = (0, _redux.createStore)(_reducers2.default, (0, _redux.applyMiddleware)(_torrentClient.torrentClient, _chromeMessage.chromeMessage));
 (0, _torrentClient2.default)(store);
 (0, _chromeMessage2.default)(store);
