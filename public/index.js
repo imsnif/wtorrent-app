@@ -139,12 +139,7 @@ exports.torrentClient = torrentClient;
 
 exports.default = function (store) {
   client = new _webtorrent2.default({ maxConns: 10 });
-  reportTimer = setTimeout(function () {
-    store.dispatch((0, _clientActions.updateClient)({
-      downloadSpeed: client.downloadSpeed,
-      uploadSpeed: client.uploadSpeed
-    }));
-  }, 1000);
+  reportState(store);
 };
 
 var _torrentActions = require('../actions/torrent-actions');
@@ -159,6 +154,14 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var reportTimer = null;
 var client = null;
+
+var reportState = function reportState(store) {
+  store.dispatch((0, _clientActions.updateClient)({
+    downloadSpeed: client.downloadSpeed,
+    uploadSpeed: client.uploadSpeed
+  }));
+  reportTimer = setTimeout(reportState.bind(reportState, store), 1000);
+};
 
 function torrentClient(store) {
   return function (next) {
