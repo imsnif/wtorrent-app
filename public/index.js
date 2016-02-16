@@ -72,15 +72,8 @@ exports.chromeMessage = chromeMessage;
 
 exports.default = function (store) {
   chrome.runtime.onInstalled.addListener(updateFsEntry);
-  store.subscribe(function () {
-    var state = store.getState();
-    state.torrents.forEach(function (torrent) {
-      chrome.runtime.sendMessage("kechjjcjfbniofinibgojemmindijlbj", (0, _torrentActions.updateTorrent)(torrent));
-    });
-    chrome.runtime.sendMessage("kechjjcjfbniofinibgojemmindijlbj", (0, _clientActions.updateClient)(state.client));
-  });
+  reportState(store);
   chrome.runtime.onMessageExternal.addListener(function (message) {
-    console.log("dispatching:", message);
     store.dispatch(message);
   });
 };
@@ -99,6 +92,8 @@ var _webtorrent2 = _interopRequireDefault(_webtorrent);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+var reportTimer = undefined;
+
 function updateFsEntry() {
   if (_fs2.default.entry === undefined) {
     _fs2.default.entry = null; // Temporarily set to avoid race condition
@@ -114,6 +109,15 @@ function updateFsEntry() {
     });
   }
 }
+
+var reportState = function reportState(store) {
+  var state = store.getState();
+  state.torrents.forEach(function (torrent) {
+    chrome.runtime.sendMessage("kechjjcjfbniofinibgojemmindijlbj", (0, _torrentActions.updateTorrent)(torrent));
+  });
+  chrome.runtime.sendMessage("kechjjcjfbniofinibgojemmindijlbj", (0, _clientActions.updateClient)(state.client));
+  reportTimer = setTimeout(reportState.bind(reportState, store), 1000);
+};
 
 function chromeMessage(store) {
   return function (next) {
@@ -163,7 +167,9 @@ function torrentClient(store) {
       if (client) {
         switch (action.type) {
           case 'ADD_TORRENT':
+            console.log("adding torrent");
             client.add(action.magnetUri, { path: "./" }, function (torrent) {
+              console.log("added:", torrent);
               torrent.on("download", store.dispatch.bind(store, (0, _torrentActions.updateTorrent)(torrent)));
               torrent.on("upload", store.dispatch.bind(store, (0, _torrentActions.updateTorrent)(torrent)));
               torrent.on("done", store.dispatch.bind(store, (0, _torrentActions.updateTorrent)(torrent)));
@@ -246,21 +252,31 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
+var torrentMetadata = function torrentMetadata(torrent) {
+  return {
+    infoHash: torrent.infoHash,
+    downloaded: torrent.downloaded,
+    uploaded: torrent.uploaded,
+    downloadSpeed: torrent.downloadSpeed,
+    uploadSpeed: torrent.uploadSpeed,
+    progress: torrent.progress,
+    name: torrent.name
+  };
+};
 var torrent = function torrent(state, action) {
   switch (action.type) {
     case 'ADD_TORRENT':
-      console.log("action is:", action);
       var infoHash = (0, _parseTorrent2.default)(action.magnetUri).infoHash;
       return { infoHash: infoHash };
     case 'UPDATE_TORRENT':
-      if (state.infoHash !== action.infoHash) return state;
+      if (state.infoHash !== action.data.infoHash) return state;
       var status = action.data.progress === 1 ? "done" : "inProgress";
-      return Object.assign({ status: status }, action.data);
+      return Object.assign({ status: status }, torrentMetadata(action.data));
     case 'REMOVE_TORRENT':
-      if (state.infoHash !== action.infoHash) return state;
-      return Object.assign({ status: "pending" }, action.data);
+      if (state.infoHash !== action.data.infoHash) return state;
+      return Object.assign({ status: "pending" }, torrentMetadata(action.data));
     case 'DELETE_TORRENT':
-      if (state.infoHash !== action.infoHash) return true;
+      if (state.infoHash !== action.data.infoHash) return true;
       return false;
     default:
       return state;
