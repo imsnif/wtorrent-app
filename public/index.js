@@ -73,8 +73,10 @@ exports.chromeMessage = chromeMessage;
 exports.default = function (store) {
   chrome.runtime.onInstalled.addListener(updateFsEntry);
   reportState(store);
-  chrome.runtime.onMessageExternal.addListener(function (message) {
-    store.dispatch(message);
+  chrome.runtime.onMessageExternal.addListener(function (message, sender) {
+    if (sender.id === "kechjjcjfbniofinibgojemmindijlbj") {
+      store.dispatch(message);
+    }
   });
 };
 
