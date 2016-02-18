@@ -53,7 +53,7 @@
   "devDependencies": {
     "browserify": "~6.0.3",
     "chrome-dgram": "^2.1.7",
-    "declareify": "^1.0.0",
+    "declareify": "^2.0.0",
     "nodemon": "^1.2.1",
     "reactify": "~0.14.0",
     "uglify-js": "~2.4.15",
