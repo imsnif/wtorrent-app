@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "postinstall": "browserinc",
-    "build": "browserify lib/index.js -g babelify -g aliasify -g declareify --outfile public/index.js -v",
+    "build": "browserify lib/index.js -g babelify -g aliasify -g declareify --outfile public/index.js -v && crx pack ./public -p ~/.ssh/wtorrent.pem -o ./extension.crx",
     "watch": "crxify -p ~/.ssh/wtorrent.pem & watchify lib/index.js -g babelify -g aliasify -g declareify --outfile public/index.js -v"
   },
   "author": "Aram Drevekenin",
@@ -31,6 +31,7 @@
     "chrome-path": "^1.0.0",
     "chrome-util-deprecate": "^1.0.0",
     "chromiumify": "^9.0.0",
+    "crx": "^3.0.3",
     "cssify": "^1.0.1",
     "flux": "^2.1.1",
     "http-chrome": "^1.0.0",
@@ -46,7 +47,7 @@
     "react-xeditable": "^0.1.3",
     "redux": "^3.3.1",
     "rmdir": "^1.1.0",
-    "web-fs": "^2.0.0",
+    "web-fs": "^2.1.0",
     "webtorrent": "^0.72.1"
   },
   "devDependencies": {
@@ -72,8 +73,7 @@
       "depd": "chrome-depd",
       "path": "chrome-path",
       "util-deprecate": "chrome-util-deprecate"
-    },
-    "verbose": "true"
+    }
   },
   "babel": {
     "presets": [
