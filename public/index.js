@@ -169,6 +169,20 @@ var reportState = function reportState(store) {
   reportTimer = setTimeout(reportState.bind(reportState, store), 1000);
 };
 
+var addTorrentToClient = function addTorrentToClient(store, magnetUri) {
+  client.add(magnetUri, { path: "./" }, function (torrent) {
+    torrent.on("download", store.dispatch.bind(store, (0, _torrentActions.updateTorrent)(torrent)));
+    torrent.on("upload", store.dispatch.bind(store, (0, _torrentActions.updateTorrent)(torrent)));
+    torrent.on("done", store.dispatch.bind(store, (0, _torrentActions.updateTorrent)(torrent)));
+  });
+};
+
+var removeTorrentFromClient = function removeTorrentFromClient(store, torrentId) {
+  client.remove(torrentId, function (err) {
+    store.dispatch((0, _torrentActions.deleteTorrent)(torrentId));
+  });
+};
+
 function torrentClient(store) {
   return function (next) {
     return function (action) {
@@ -176,16 +190,11 @@ function torrentClient(store) {
       if (client) {
         switch (action.type) {
           case 'ADD_TORRENT':
-            client.add(action.magnetUri, { path: "./" }, function (torrent) {
-              torrent.on("download", store.dispatch.bind(store, (0, _torrentActions.updateTorrent)(torrent)));
-              torrent.on("upload", store.dispatch.bind(store, (0, _torrentActions.updateTorrent)(torrent)));
-              torrent.on("done", store.dispatch.bind(store, (0, _torrentActions.updateTorrent)(torrent)));
-            });
+            addTorrentToClient(store, action.magnetUri);
             break;
           case 'REMOVE_TORRENT':
-            client.remove(action.data, function (err) {
-              store.dispatch((0, _torrentActions.deleteTorrent)(action.data));
-            });
+            removeTorrentFromClient(store, action.data);
+            break;
         }
       }
       return result;
