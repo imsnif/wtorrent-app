@@ -32,18 +32,16 @@
   },
   "aliasify": {
     "aliases": {
-      "net": "chrome-net",
-      "dgram": "chrome-dgram",
-      "dns": "native-dns",
-      "fs": "./public/fs-wrapper.js",
-      "addr-to-ip-port": "addr-to-ip-port/index",
-      "load-ip-set": "load-ip-set/index",
-      "ut_pex": "ut_pex/index",
-      "simple-get": "simple-get/index",
       "debug": "chrome-debug",
-      "depd": "chrome-depd",
+      "dgram": "chrome-dgram",
+      "net": "chrome-net",
       "path": "chrome-path",
-      "util-deprecate": "chrome-util-deprecate"
+      "util-deprecate": "chrome-util-deprecate",
+      "load-ip-set": "load-ip-set/index",
+      "fs": "./public/fs-wrapper.js",
+      "simple-get": "simple-get/index",
+      "ut_pex": "ut_pex/index",
+      "addr-to-ip-port": "addr-to-ip-port/index"
     }
   },
   "babel": {
