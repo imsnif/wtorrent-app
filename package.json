@@ -5,8 +5,8 @@
   "main": "server.js",
   "scripts": {
     "postinstall": "browserinc",
-    "build": "browserify lib/index.js -g babelify -g aliasify -g declareify --outfile public/index.js -v && crx pack ./public -p ~/.ssh/wtorrent.pem -o ./extension.crx",
-    "watch": "crxify -p ~/.ssh/wtorrent.pem & watchify lib/index.js -g babelify -g aliasify -g declareify --outfile public/index.js -v"
+    "build": "browserify lib/background.js -g babelify -g aliasify -g declareify --outfile public/js/background.js -v && crx pack ./public -p ~/.ssh/wtorrent.pem -o ./extension.crx",
+    "watch": "crxify -p ~/.ssh/wtorrent.pem & watchify lib/background.js -g babelify -g aliasify -g declareify --outfile public/js/background.js -v"
   },
   "author": "Aram Drevekenin",
   "license": "MIT",
