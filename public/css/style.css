@@ -13,5 +13,16 @@ html, body {
 }
 
 .title-row {
-  background-color: gray
+  height: 30px;
+  background-color: gray;
+}
+
+.title {
+  margin-top: 3px;
+  color: white;
+}
+
+#close {
+  margin-top: 3px;
+  margin-left: 7px;
 }
