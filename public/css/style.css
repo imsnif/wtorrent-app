@@ -1,7 +1,10 @@
-html, body, .container-table {
+html, body {
     height: 100%;
+    border: 1px solid gray;
+    background-color: #dff0d8;
 }
 .container-table {
+    height: 170px;
     display: table;
 }
 .vertical-center-row {
