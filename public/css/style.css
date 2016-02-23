@@ -8,3 +8,7 @@ html, body, .container-table {
     display: table-cell;
     vertical-align: middle;
 }
+
+.title-row {
+  background-color: gray
+}
