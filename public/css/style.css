@@ -13,6 +13,7 @@ html, body {
 }
 
 .title-row {
+  -webkit-app-region: drag;
   height: 30px;
   background-color: gray;
 }
@@ -23,6 +24,7 @@ html, body {
 }
 
 #close {
+  -webkit-app-region: no-drag;
   margin-top: 3px;
   margin-left: 7px;
 }
