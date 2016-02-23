@@ -1,4 +1,7 @@
 window.addEventListener('load', function() {
+  document.getElementById('close').addEventListener('click', function() {
+    window.close()
+  })
   document.getElementById('input').addEventListener('click', function() {
 
     chrome.fileSystem.chooseEntry({type: 'openDirectory'}, function(entry) {
